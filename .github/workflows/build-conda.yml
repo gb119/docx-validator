@@ -40,9 +40,12 @@ jobs:
       - name: Create meta.yaml
         shell: bash -l {0}
         run: |
-          cat > conda-recipe/meta.yaml << 'EOF'
+          # Extract version from __init__.py
+          VERSION=$(python -c "import sys; sys.path.insert(0, '.'); from docx_validator import __version__; print(__version__)")
+          
+          cat > conda-recipe/meta.yaml << EOF
           {% set name = "docx-validator" %}
-          {% set version = "0.1.0" %}
+          {% set version = "$VERSION" %}
 
           package:
             name: {{ name|lower }}
