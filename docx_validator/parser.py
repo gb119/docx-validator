@@ -114,8 +114,8 @@ class DocxParser:
                     xml_bytes = docx_zip.read("word/document.xml")
                     # Use errors='replace' to handle malformed UTF-8 gracefully
                     structure["xml_content"] = xml_bytes.decode("utf-8", errors="replace")
-        except (zipfile.BadZipFile, UnicodeDecodeError, KeyError, OSError):
-            # If XML extraction fails (bad ZIP, encoding issues, missing file, or I/O error),
+        except (zipfile.BadZipFile, UnicodeDecodeError, OSError):
+            # If XML extraction fails (bad ZIP, encoding issues, or I/O error),
             # continue without it - the basic structure information is still available
             pass
 
