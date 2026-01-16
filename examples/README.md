@@ -34,6 +34,13 @@ A comprehensive specification file for validating well-structured academic or te
 - **Numbered Equation on Own Line**: Validates presence of equations positioned on their own line, numbered using Word's Insert Caption function
 - **Cross-Reference to Equation**: Ensures equations are referenced in the text using Word's Cross-Reference function for automatic linking
 
+#### Formatting
+- **Page Numbers**: Validates that the document has page numbers added using Word's Insert Page Number function, visible in the header or footer
+
+#### References
+- **At Least 5 References**: Validates presence of at least 5 references listed under a 'References' or 'Bibliography' heading, formatted in either Harvard (author-date) or Numeric (numbered) style
+- **Properly Formatted In-Text Citations**: Ensures in-text citations are properly formatted and match the reference style, ideally created using EndNote or Word's Citation & Bibliography tools
+
 **Usage:**
 ```bash
 docx-validator validate document.docx --spec-file examples/structured_document_specifications.json

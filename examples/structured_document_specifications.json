@@ -46,5 +46,23 @@
     "description": "Document must include at least one cross-reference to an equation in the text, created using Word's Cross-Reference function. The cross-reference should automatically link to the equation number.",
     "category": "equations",
     "score": 0.5
+  },
+  {
+    "name": "Has Page Numbers",
+    "description": "Document must have page numbers added using Word's Insert Page Number function. Page numbers should be visible in the header or footer of the document.",
+    "category": "formatting",
+    "score": 1.0
+  },
+  {
+    "name": "Has At Least 5 References",
+    "description": "Document must contain at least 5 references listed under a heading titled 'References' or 'Bibliography'. The references should be formatted in either Harvard style (author-date format) or Numeric style (numbered format). Look for a section with this heading containing at least 5 distinct reference entries.",
+    "category": "references",
+    "score": 2.0
+  },
+  {
+    "name": "Has Properly Formatted In-Text Citations",
+    "description": "Document must include in-text citations that are properly formatted and match the reference style used in the References section. For Harvard style, citations should appear as (Author, Year) or Author (Year). For Numeric style, citations should appear as [1], [2], etc. Ideally, these should be created using EndNote or Word's Citation & Bibliography tools for automatic formatting.",
+    "category": "references",
+    "score": 1.5
   }
 ]
