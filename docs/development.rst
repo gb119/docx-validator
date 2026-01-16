@@ -140,6 +140,8 @@ The ``build-conda.yml`` workflow builds conda packages for multiple platforms:
 
 - Ubuntu, Windows, and macOS
 - Python 3.9, 3.10, 3.11, and 3.12
+- Uses mamba for faster environment resolution
+- Automatically uploads to the phygbu channel on anaconda.org
 
 To trigger:
 
@@ -147,6 +149,19 @@ To trigger:
 
    git tag v0.1.0
    git push origin v0.1.0
+
+**Required Secrets:**
+
+The conda build workflow requires the following secret to be configured in GitHub repository settings:
+
+- ``ANACONDA_TOKEN``: An anaconda.org API token with permission to upload packages to the phygbu channel
+
+To create an anaconda token:
+
+1. Log in to anaconda.org
+2. Go to Settings → Access
+3. Create a new token with "Allow write access to the API site" permission
+4. Add the token as ``ANACONDA_TOKEN`` in GitHub repository secrets (Settings → Secrets and variables → Actions)
 
 Manual Building
 ~~~~~~~~~~~~~~~
@@ -162,8 +177,13 @@ Build conda package locally:
 
 .. code-block:: bash
 
+   # Using conda
    conda install conda-build
    conda build conda-recipe
+
+   # Or using mamba (faster)
+   mamba install conda-build
+   conda mambabuild conda-recipe
 
 Version Bumping
 ~~~~~~~~~~~~~~~

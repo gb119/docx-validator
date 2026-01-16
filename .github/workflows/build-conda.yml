@@ -27,10 +27,11 @@ jobs:
           miniforge-version: latest
           activate-environment: build-env
 
-      - name: Install conda-build
+      - name: Install conda-build with mamba
         shell: bash -l {0}
         run: |
-          conda install -y conda-build anaconda-client
+          # Use mamba for faster environment resolution
+          mamba install -y conda-build anaconda-client
 
       - name: Create conda recipe directory
         shell: bash -l {0}
@@ -46,6 +47,11 @@ jobs:
             from docx_validator import __version__; \
             print(__version__)")
           
+          # Create conda recipe with metadata
+          # Note: This recipe is used by the build-conda.yml workflow
+          # For automated uploads to Anaconda Cloud, ensure ANACONDA_TOKEN secret
+          # is configured in the repository settings with permissions to upload
+          # to the phygbu channel on anaconda.org
           cat > conda-recipe/meta.yaml << EOF
           {% set name = "docx-validator" %}
           {% set version = "$VERSION" %}
@@ -100,7 +106,8 @@ jobs:
       - name: Build conda package
         shell: bash -l {0}
         run: |
-          conda build conda-recipe --output-folder conda-output
+          # Use mamba for faster environment resolution during build
+          conda mambabuild conda-recipe --output-folder conda-output
 
       - name: Upload conda package
         uses: actions/upload-artifact@v4
@@ -118,28 +125,30 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Optional: Publish to Anaconda Cloud
-  # publish-anaconda:
-  #   needs: build-conda
-  #   runs-on: ubuntu-latest
-  #   if: startsWith(github.ref, 'refs/tags/')
-  #   steps:
-  #     - uses: actions/download-artifact@v4
-  #       with:
-  #         pattern: conda-package-*
-  #         path: conda-packages
-  #         merge-multiple: true
-  #     
-  #     - name: Set up Miniconda
-  #       uses: conda-incubator/setup-miniconda@v3
-  #       with:
-  #         auto-update-conda: true
-  #     
-  #     - name: Install anaconda-client
-  #       shell: bash -l {0}
-  #       run: conda install -y anaconda-client
-  #     
-  #     - name: Upload to Anaconda Cloud
-  #       shell: bash -l {0}
-  #       run: |
-  #         anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload conda-packages/**/*.tar.bz2
+  # Publish to Anaconda Cloud (phygbu channel)
+  # Requires ANACONDA_TOKEN secret to be configured in repository settings
+  publish-anaconda:
+    needs: build-conda
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: conda-package-*
+          path: conda-packages
+          merge-multiple: true
+      
+      - name: Set up Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          auto-update-conda: true
+      
+      - name: Install anaconda-client
+        shell: bash -l {0}
+        run: mamba install -y anaconda-client
+      
+      - name: Upload to Anaconda Cloud (phygbu channel)
+        shell: bash -l {0}
+        run: |
+          # Upload to the phygbu channel
+          anaconda -t ${{ secrets.ANACONDA_TOKEN }} upload --user phygbu conda-packages/**/*.tar.bz2

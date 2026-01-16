@@ -33,7 +33,7 @@ pip install -e .
 ### Using Conda (once published)
 
 ```bash
-conda install -c conda-forge docx-validator
+conda install -c phygbu docx-validator
 ```
 
 ## Quick Start
@@ -285,10 +285,14 @@ ruff format .
 
 ## GitHub Actions
 
-The project includes two GitHub Actions workflows:
+The project includes three GitHub Actions workflows:
 
 1. **build-wheel.yml**: Builds Python wheel packages on tag push
 2. **build-conda.yml**: Builds conda packages for multiple platforms and Python versions
+   - Uses mamba for faster environment resolution
+   - Automatically uploads to the phygbu channel on anaconda.org when tags are pushed
+   - Requires `ANACONDA_TOKEN` secret to be configured in repository settings
+3. **docs.yml**: Builds and deploys documentation
 
 To trigger a release:
 
@@ -296,6 +300,8 @@ To trigger a release:
 git tag v0.1.0
 git push origin v0.1.0
 ```
+
+This will build both wheel and conda packages, and upload them to PyPI (if configured) and the phygbu anaconda channel.
 
 ## License
 

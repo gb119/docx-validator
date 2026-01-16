@@ -36,11 +36,17 @@ For documentation building, install with the docs dependencies:
 Using Conda
 -----------
 
-Once published to conda-forge, you can install using conda:
+Once published to the phygbu channel, you can install using conda:
 
 .. code-block:: bash
 
-   conda install -c conda-forge docx-validator
+   conda install -c phygbu docx-validator
+
+Or with mamba for faster installation:
+
+.. code-block:: bash
+
+   mamba install -c phygbu docx-validator
 
 Requirements
 ------------
