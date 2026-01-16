@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from .backends import get_backend
 from .parser import DocxParser
+from .parsers import detect_parser, get_parser
 
 
 class ValidationSpec(BaseModel):
@@ -44,9 +45,10 @@ class ValidationReport(BaseModel):
 
 class DocxValidator:
     """
-    Validator for .docx files using LLM-based analysis.
+    Validator for documents using LLM-based analysis.
 
     Supports multiple AI backends including OpenAI, GitHub Models, and NebulaOne.
+    Supports multiple document formats including DOCX, HTML, and LaTeX.
     """
 
     def __init__(
@@ -55,6 +57,7 @@ class DocxValidator:
         model_name: str = "gpt-4o-mini",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
+        parser: Optional[str] = None,
         **backend_kwargs,
     ):
         """
@@ -71,22 +74,27 @@ class DocxValidator:
                      will try environment variables:
                      - For OpenAI/GitHub: OPENAI_BASE_URL
                      - For NebulaOne: NEBULAONE_BASE_URL
+            parser: Name of the parser to use ('docx', 'html', 'latex').
+                   If not provided, parser will be auto-detected from file extension.
             **backend_kwargs: Additional backend-specific configuration options
 
         Examples:
-            # Use OpenAI (default)
+            # Use OpenAI (default) with auto-detected parser
             validator = DocxValidator()
 
-            # Use GitHub Models
-            validator = DocxValidator(backend='github', api_key='ghp_xxx')
+            # Use GitHub Models with explicit HTML parser
+            validator = DocxValidator(backend='github', parser='html', api_key='ghp_xxx')
 
-            # Use NebulaOne
+            # Use NebulaOne with LaTeX parser
             validator = DocxValidator(
                 backend='nebulaone', model_name='nebula-1',
-                api_key='your-key', base_url='https://api.nebulaone.example'
+                parser='latex', api_key='your-key', base_url='https://api.nebulaone.example'
             )
         """
-        self.parser = DocxParser()
+        # Store parser preference for auto-detection
+        self._parser_name = parser
+        # For backward compatibility, maintain a parser instance (will be docx by default)
+        self.parser = DocxParser() if parser is None else get_parser(parser)
 
         # Create the backend
         self.backend = get_backend(
@@ -104,22 +112,31 @@ class DocxValidator:
 
     def validate(self, file_path: str, specifications: List[ValidationSpec]) -> ValidationReport:
         """
-        Validate a .docx file against a list of specifications.
+        Validate a document file against a list of specifications.
 
         This method optimizes LLM API calls by setting up the document context once,
         then validating each specification against that context using message history.
         This reduces token usage significantly compared to repeating the document
         structure in each validation request.
 
+        Supports multiple document formats including DOCX, HTML, and LaTeX.
+        The parser is auto-detected from file extension if not explicitly specified.
+
         Args:
-            file_path: Path to the .docx file to validate
+            file_path: Path to the document file to validate
             specifications: List of validation specifications to check
 
         Returns:
             ValidationReport containing all validation results and scores
         """
+        # Detect or use the appropriate parser
+        if self._parser_name:
+            parser = get_parser(self._parser_name)
+        else:
+            parser = detect_parser(file_path)
+
         # Parse the document structure
-        doc_structure = self.parser.parse_docx(file_path)
+        doc_structure = parser.parse(file_path)
 
         # Set up the document context once for all validations
         message_history = self._setup_document_context(doc_structure)
@@ -225,9 +242,7 @@ Reasoning: Your explanation here
 
         try:
             # Run the agent with message history for context
-            response = self.backend.run_sync(
-                self.agent, prompt, message_history=message_history
-            )
+            response = self.backend.run_sync(self.agent, prompt, message_history=message_history)
             response_text = str(response.data)
 
             # Parse the response

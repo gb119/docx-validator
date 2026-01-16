@@ -1,10 +1,38 @@
-# Example Specification Files
+# Example Specification Files and Sample Documents
 
-This directory contains example specification files that can be used with docx-validator to validate different aspects of Word documents.
+This directory contains example specification files and sample documents in various formats that can be used with docx-validator.
+
+## Sample Documents
+
+### Document Format Examples
+- **`sample_document.html`** - Sample HTML document demonstrating proper structure
+- **`sample_document.tex`** - Sample LaTeX document with sections, figures, tables, and equations
+- See the main repository for DOCX examples
+
+These sample documents can be used to test the validator with different document formats.
 
 ## Available Specification Files
 
-### 1. `sample_specifications.json`
+### 1. `multi_format_specs.json`
+A simple specification file designed to work across multiple document formats (DOCX, HTML, LaTeX):
+- Has Title - Document must have a title
+- Has Author - Document must specify an author
+- Has Multiple Sections - Document must be organized with sections/headings
+- Contains Table - Document should include tables
+
+**Usage with different formats:**
+```bash
+# Validate HTML document
+docx-validator validate sample_document.html --spec-file examples/multi_format_specs.json
+
+# Validate LaTeX document
+docx-validator validate sample_document.tex --spec-file examples/multi_format_specs.json
+
+# Validate DOCX document
+docx-validator validate document.docx --spec-file examples/multi_format_specs.json
+```
+
+### 2. `sample_specifications.json`
 A basic set of validation specifications covering:
 - Document metadata (title, author)
 - Basic structure (headings, paragraphs)
@@ -45,6 +73,15 @@ A comprehensive specification file for validating well-structured academic or te
 ```bash
 docx-validator validate document.docx --spec-file examples/structured_document_specifications.json
 ```
+
+## Multiple Document Format Support
+
+docx-validator supports validating documents in multiple formats:
+- **DOCX** - Microsoft Word documents (`.docx`)
+- **HTML** - Web pages (`.html`, `.htm`)
+- **LaTeX** - LaTeX documents (`.tex`, `.latex`)
+
+The validator automatically detects the document format from the file extension. See `FORMAT_SUPPORT.md` for detailed information about multi-format support.
 
 ## Creating Custom Specifications
 

@@ -52,7 +52,7 @@ def test_docx_parser_invalid_extension():
         temp_path = f.name
 
     try:
-        with pytest.raises(ValueError, match="must be a .docx file"):
+        with pytest.raises(ValueError, match="is not supported by DocxParser"):
             parser.parse_docx(temp_path)
     finally:
         os.unlink(temp_path)
@@ -304,30 +304,30 @@ def test_validation_report_negative_total():
 def test_context_setup_method():
     """Test that _setup_document_context method works correctly."""
     import os
-    from unittest.mock import Mock, MagicMock
+    from unittest.mock import MagicMock, Mock
 
     os.environ["OPENAI_API_KEY"] = "test_key"
 
     try:
         validator = DocxValidator(model_name="gpt-4o-mini", api_key="test_key")
-        
+
         # Create a mock response
         mock_response = MagicMock()
         mock_response.data = "Document structure received and ready for validation."
         mock_response.all_messages.return_value = [{"role": "user", "content": "test"}]
-        
+
         # Mock the backend's run_sync to return our mock response
         validator.backend.run_sync = Mock(return_value=mock_response)
-        
+
         # Test document structure
         doc_structure = {
             "metadata": {"title": "Test", "author": "Test Author"},
-            "paragraphs": ["Test paragraph"]
+            "paragraphs": ["Test paragraph"],
         }
-        
+
         # Call the method
         message_history = validator._setup_document_context(doc_structure)
-        
+
         # Verify the method was called
         assert validator.backend.run_sync.called
         assert len(message_history) > 0
@@ -339,37 +339,35 @@ def test_context_setup_method():
 def test_validate_spec_with_context():
     """Test that _validate_spec_with_context method works correctly."""
     import os
-    from unittest.mock import Mock, MagicMock
+    from unittest.mock import MagicMock, Mock
 
     os.environ["OPENAI_API_KEY"] = "test_key"
 
     try:
         validator = DocxValidator(model_name="gpt-4o-mini", api_key="test_key")
-        
+
         # Create a mock response
         mock_response = MagicMock()
         mock_response.data = "Result: PASS\nConfidence: 0.95\nReasoning: Document has a title"
         mock_response.all_messages.return_value = [
             {"role": "user", "content": "test"},
-            {"role": "assistant", "content": "response"}
+            {"role": "assistant", "content": "response"},
         ]
-        
+
         # Mock the backend's run_sync to return our mock response
         validator.backend.run_sync = Mock(return_value=mock_response)
-        
+
         # Test specification
         spec = ValidationSpec(
-            name="Has Title",
-            description="Document must have a title",
-            category="metadata"
+            name="Has Title", description="Document must have a title", category="metadata"
         )
-        
+
         # Mock message history
         message_history = [{"role": "user", "content": "Document structure..."}]
-        
+
         # Call the method (now returns tuple)
         result, updated_history = validator._validate_spec_with_context(spec, message_history)
-        
+
         # Verify the result
         assert result.spec_name == "Has Title"
         assert result.passed is True
@@ -386,27 +384,24 @@ def test_validate_spec_with_context():
 def test_context_based_validation_efficiency():
     """
     Test that validates the efficiency improvement of context-based validation.
-    
+
     This test verifies that when validating multiple specs, the document structure
     is only sent once in the initial context setup, not repeated for each spec.
     """
-    import os
-    from unittest.mock import Mock, MagicMock, call
     import json
+    import os
+    from unittest.mock import MagicMock, Mock
 
     os.environ["OPENAI_API_KEY"] = "test_key"
 
     try:
         validator = DocxValidator(model_name="gpt-4o-mini", api_key="test_key")
-        
+
         # Track all prompts sent to the backend
         prompts_sent = []
-        
+
         def mock_run_sync(agent, prompt, message_history=None):
-            prompts_sent.append({
-                'prompt': prompt,
-                'has_history': message_history is not None
-            })
+            prompts_sent.append({"prompt": prompt, "has_history": message_history is not None})
             mock_response = MagicMock()
             if "Document Structure:" in prompt:
                 # This is the context setup
@@ -416,50 +411,61 @@ def test_context_based_validation_efficiency():
                 mock_response.data = "Result: PASS\nConfidence: 0.9\nReasoning: Test passed"
             mock_response.all_messages.return_value = [
                 {"role": "user", "content": prompt},
-                {"role": "assistant", "content": str(mock_response.data)}
+                {"role": "assistant", "content": str(mock_response.data)},
             ]
             return mock_response
-        
+
         validator.backend.run_sync = Mock(side_effect=mock_run_sync)
-        
+
         # Create test specs
         specs = [
             ValidationSpec(name="Test 1", description="First test"),
             ValidationSpec(name="Test 2", description="Second test"),
             ValidationSpec(name="Test 3", description="Third test"),
         ]
-        
+
         # Create a simple mock document
         doc_structure = {"metadata": {"title": "Test"}, "paragraphs": ["Content"]}
-        validator.parser.parse_docx = Mock(return_value=doc_structure)
-        
-        # Run validation (this should use the new context-based approach)
-        report = validator.validate("test.docx", specs)
-        
-        # Verify the results
-        assert report.total_specs == 3
-        
-        # Verify efficiency: should have 4 calls total
-        # 1 for context setup + 3 for individual validations
-        assert len(prompts_sent) == 4
-        
-        # First call should be context setup (no message history)
-        assert not prompts_sent[0]['has_history']
-        assert "Document Structure:" in prompts_sent[0]['prompt']
-        
-        # Count how many times the full document structure appears in prompts
-        doc_json = json.dumps(doc_structure, indent=2, default=str)
-        full_doc_appearances = sum(1 for p in prompts_sent if doc_json in p['prompt'])
-        
-        # Document should only appear once (in context setup), not in validation prompts
-        assert full_doc_appearances == 1, "Document structure should only be sent once in context setup"
-        
-        # Subsequent calls should have message history
-        for i in range(1, 4):
-            assert prompts_sent[i]['has_history'], f"Validation call {i} should have message history"
-            assert "Document Structure:" not in prompts_sent[i]['prompt'], \
-                f"Validation call {i} should not repeat the document structure"
-        
+
+        # Mock the detect_parser to avoid file validation
+        from unittest.mock import patch
+
+        mock_parser = Mock()
+        mock_parser.parse = Mock(return_value=doc_structure)
+
+        with patch("docx_validator.validator.detect_parser", return_value=mock_parser):
+            # Run validation (this should use the new context-based approach)
+            report = validator.validate("test.docx", specs)
+
+            # Verify the results
+            assert report.total_specs == 3
+
+            # Verify efficiency: should have 4 calls total
+            # 1 for context setup + 3 for individual validations
+            assert len(prompts_sent) == 4
+
+            # First call should be context setup (no message history)
+            assert not prompts_sent[0]["has_history"]
+            assert "Document Structure:" in prompts_sent[0]["prompt"]
+
+            # Count how many times the full document structure appears in prompts
+            doc_json = json.dumps(doc_structure, indent=2, default=str)
+            full_doc_appearances = sum(1 for p in prompts_sent if doc_json in p["prompt"])
+
+            # Document should only appear once (in context setup), not in validation prompts
+            assert full_doc_appearances == 1, (
+                "Document structure should only be sent once in context setup"
+            )
+
+            # Subsequent calls should have message history
+            for i in range(1, 4):
+                assert prompts_sent[i]["has_history"], (
+                    f"Validation call {i} should have message history"
+                )
+                assert "Document Structure:" not in prompts_sent[i]["prompt"], (
+                    f"Validation call {i} should not repeat the document structure"
+                )
+
     finally:
         if "OPENAI_API_KEY" in os.environ:
             del os.environ["OPENAI_API_KEY"]

@@ -16,10 +16,12 @@ from .validator import DocxValidator, ValidationSpec
 @click.version_option(version=__version__)
 def cli():
     """
-    docx-validator - Validate Microsoft Word .docx files using LLM analysis.
+    docx-validator - Validate documents using LLM analysis.
 
-    This tool uses GitHub models and pydantic-ai to check if .docx files
+    This tool uses AI models and pydantic-ai to check if documents
     conform to specification requirements.
+
+    Supports multiple document formats: DOCX, HTML, LaTeX.
     """
     pass
 
@@ -49,6 +51,11 @@ def cli():
     "-m",
     default="gpt-4o-mini",
     help="Model name to use (default: gpt-4o-mini)",
+)
+@click.option(
+    "--parser",
+    "-p",
+    help="Document parser to use: 'docx', 'html', or 'latex'. Auto-detected if not specified.",
 )
 @click.option(
     "--api-key",
@@ -82,25 +89,26 @@ def validate(
     spec: tuple,
     backend: str,
     model: str,
+    parser: Optional[str],
     api_key: Optional[str],
     base_url: Optional[str],
     output: Optional[str],
     verbose: bool,
 ):
     """
-    Validate a .docx file against specifications.
+    Validate a document file against specifications.
 
-    FILE_PATH: Path to the .docx file to validate
+    FILE_PATH: Path to the document file to validate (supports .docx, .html, .htm, .tex, .latex)
 
     Example:
-        # Use default OpenAI backend
+        # Use default OpenAI backend with auto-detected parser
         docx-validator validate document.docx -s specs.json
 
-        # Use GitHub Models
-        docx-validator validate document.docx -b github -s specs.json
+        # Validate HTML document with GitHub Models
+        docx-validator validate document.html -b github -s specs.json
 
-        # Use NebulaOne
-        docx-validator validate document.docx -b nebulaone -m nebula-1 -s specs.json
+        # Validate LaTeX document with NebulaOne
+        docx-validator validate document.tex -b nebulaone -m nebula-1 -s specs.json
 
         # With inline specifications
         docx-validator validate document.docx -r "Has Title:Document must have a title"
@@ -118,6 +126,10 @@ def validate(
     click.echo(f"Validating: {file_path}")
     click.echo(f"Using backend: {backend}")
     click.echo(f"Using model: {model}")
+    if parser:
+        click.echo(f"Using parser: {parser}")
+    else:
+        click.echo("Parser: auto-detect from file extension")
     click.echo(f"Specifications: {len(specifications)}")
     click.echo()
 
@@ -126,6 +138,7 @@ def validate(
         validator = DocxValidator(
             backend=backend,
             model_name=model,
+            parser=parser,
             api_key=api_key,
             base_url=base_url,
         )

@@ -1,0 +1,105 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\title{Sample LaTeX Document}
+\author{Jane Smith}
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+This is a sample LaTeX document that demonstrates the structure expected by the validator. It includes sections, figures, equations, and citations.
+\end{abstract}
+
+\section{Introduction}
+
+This document serves as a test case for the LaTeX parser in the docx-validator tool. It demonstrates various LaTeX features that can be validated.
+
+\section{Document Structure}
+
+A well-structured LaTeX document should have proper sections, subsections, and use appropriate environments for different content types.
+
+\subsection{Sections and Subsections}
+
+Use \texttt{\textbackslash section} and \texttt{\textbackslash subsection} commands to create a hierarchical structure.
+
+\subsection{Mathematical Content}
+
+LaTeX excels at typesetting mathematical content. Here's an inline equation: $E = mc^2$.
+
+And here's a displayed equation:
+
+\begin{equation}
+    \int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}
+    \label{eq:gaussian}
+\end{equation}
+
+We can reference Equation~\ref{eq:gaussian} later in the document.
+
+\section{Figures and Tables}
+
+\subsection{Figures}
+
+Documents often include figures to illustrate concepts:
+
+\begin{figure}[h]
+    \centering
+    % \includegraphics{example-image}
+    \caption{An example figure caption}
+    \label{fig:example}
+\end{figure}
+
+As shown in Figure~\ref{fig:example}, visual elements enhance understanding.
+
+\subsection{Tables}
+
+Tables can present structured data:
+
+\begin{table}[h]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{Feature} & \textbf{Description} \\
+        \hline
+        Validation & LLM-based document validation \\
+        Multiple Formats & Supports DOCX, HTML, and LaTeX \\
+        \hline
+    \end{tabular}
+    \caption{Features of docx-validator}
+    \label{tab:features}
+\end{table}
+
+Table~\ref{tab:features} summarizes the key features.
+
+\section{Citations and Bibliography}
+
+Academic documents often include citations \cite{knuth1984texbook, lamport1994latex}. These references help readers find additional information.
+
+\subsection{Cross-references}
+
+LaTeX's cross-referencing system allows you to reference equations, figures, tables, and sections automatically. This ensures consistency throughout the document.
+
+\section{Conclusion}
+
+This sample document demonstrates various LaTeX elements that can be validated using the docx-validator tool. The tool can analyze document structure, verify the presence of required elements, and ensure consistency.
+
+\begin{thebibliography}{9}
+
+\bibitem{knuth1984texbook}
+Donald E. Knuth,
+\textit{The TeXbook},
+Addison-Wesley, 1984.
+
+\bibitem{lamport1994latex}
+Leslie Lamport,
+\textit{LaTeX: A Document Preparation System},
+Addison-Wesley, 1994.
+
+\end{thebibliography}
+
+\end{document}

@@ -8,6 +8,14 @@ from .backends import (
     OpenAIBackend,
     get_backend,
 )
+from .parsers import (
+    BaseParser,
+    DocxParser,
+    HTMLParser,
+    LaTeXParser,
+    detect_parser,
+    get_parser,
+)
 from .validator import (
     DocxValidator,
     ValidationReport,
@@ -25,4 +33,10 @@ __all__ = [
     "OpenAIBackend",
     "NebulaOneBackend",
     "get_backend",
+    "BaseParser",
+    "DocxParser",
+    "HTMLParser",
+    "LaTeXParser",
+    "get_parser",
+    "detect_parser",
 ]

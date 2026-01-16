@@ -1,17 +1,18 @@
 # docx-validator
 
-A Python library and command-line tool that uses LLMs to validate Microsoft Word .docx files against specification requirements. Supports multiple AI backends including OpenAI, GitHub Models, and NebulaOne.
+A Python library and command-line tool that uses LLMs to validate documents against specification requirements. Supports multiple document formats (DOCX, HTML, LaTeX) and multiple AI backends including OpenAI, GitHub Models, and NebulaOne.
 
 📚 **[Read the Documentation](https://gb119.github.io/docx-validator/)**
 
 ## Features
 
 - 🤖 **Multiple AI Backends**: Supports OpenAI, GitHub Models, and NebulaOne for flexible deployment
+- 📄 **Multiple Document Formats**: Supports DOCX, HTML, and LaTeX documents
 - 📄 **Document Structure Analysis**: Extracts and analyzes document structure, styles, tables, metadata, and more
 - ✅ **Specification-Based Validation**: Define custom validation requirements for your documents
 - 📊 **Normalized Results**: Returns True/False validation results with numerical scoring
 - 🖥️ **CLI and Library**: Use as a command-line tool or integrate into your Python projects
-- 🔌 **Pluggable Architecture**: Easy to extend with custom AI backends
+- 🔌 **Pluggable Architecture**: Easy to extend with custom AI backends and document parsers
 - 📦 **Easy Distribution**: GitHub Actions workflows for building wheel and conda packages
 
 ## Installation
@@ -244,6 +245,36 @@ The `examples/` directory contains ready-to-use specification files:
   - Cross-references to equations
 
 See `examples/README.md` for detailed information about each specification file.
+
+## Multiple Document Format Support
+
+docx-validator now supports multiple document formats beyond just DOCX:
+
+- **DOCX** (`.docx`) - Microsoft Word documents
+- **HTML** (`.html`, `.htm`) - HTML web pages  
+- **LaTeX** (`.tex`, `.latex`) - LaTeX documents
+
+The parser is automatically detected based on the file extension:
+
+```bash
+# Validate HTML document
+docx-validator validate document.html -s specs.json
+
+# Validate LaTeX document
+docx-validator validate document.tex -s specs.json
+```
+
+Or explicitly specify the parser:
+
+```bash
+docx-validator validate document.html -p html -s specs.json
+```
+
+See `examples/FORMAT_SUPPORT.md` for detailed documentation on multi-format support, including:
+- What information is extracted from each format
+- How to write format-agnostic specifications
+- Python API examples
+- How to extend with new formats
 
 ## Validation Report
 

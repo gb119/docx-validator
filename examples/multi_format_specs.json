@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Has Title",
+    "description": "Document must contain a title in metadata or title element",
+    "category": "metadata",
+    "score": 2.0
+  },
+  {
+    "name": "Has Author",
+    "description": "Document must specify an author",
+    "category": "metadata",
+    "score": 1.0
+  },
+  {
+    "name": "Has Multiple Sections",
+    "description": "Document must be organized with multiple sections or headings",
+    "category": "structure",
+    "score": 2.0
+  },
+  {
+    "name": "Contains Table",
+    "description": "Document should include at least one table to present structured data",
+    "category": "content",
+    "score": 1.0
+  }
+]
