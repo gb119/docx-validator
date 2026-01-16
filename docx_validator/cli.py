@@ -54,15 +54,15 @@ def cli():
     "--api-key",
     "-k",
     help="API key for authentication. Uses environment variables if not provided:\n"
-         "OpenAI/GitHub: GITHUB_TOKEN or OPENAI_API_KEY\n"
-         "NebulaOne: NEBULAONE_API_KEY",
+    "OpenAI/GitHub: GITHUB_TOKEN or OPENAI_API_KEY\n"
+    "NebulaOne: NEBULAONE_API_KEY",
 )
 @click.option(
     "--base-url",
     "-u",
     help="Base URL for the API endpoint. Uses environment variables if not provided:\n"
-         "OpenAI/GitHub: OPENAI_BASE_URL\n"
-         "NebulaOne: NEBULAONE_BASE_URL",
+    "OpenAI/GitHub: OPENAI_BASE_URL\n"
+    "NebulaOne: NEBULAONE_BASE_URL",
 )
 @click.option(
     "--output",
@@ -168,21 +168,25 @@ def init_spec(output_file: str):
             "name": "Has Title",
             "description": "Document must contain a title in the metadata",
             "category": "metadata",
+            "score": 2.0,
         },
         {
             "name": "Has Author",
             "description": "Document must have an author specified in metadata",
             "category": "metadata",
+            "score": 1.0,
         },
         {
             "name": "Has Headings",
             "description": "Document must use heading styles (Heading 1, Heading 2, etc.)",
             "category": "structure",
+            "score": 1.5,
         },
         {
             "name": "Has Table of Contents",
             "description": "Document should include a table of contents",
             "category": "structure",
+            "score": 0.5,
         },
     ]
 
@@ -195,9 +199,7 @@ def init_spec(output_file: str):
         sys.exit(1)
 
 
-def _load_specifications(
-    spec_file: Optional[str], inline_specs: tuple
-) -> List[ValidationSpec]:
+def _load_specifications(spec_file: Optional[str], inline_specs: tuple) -> List[ValidationSpec]:
     """Load specifications from file and/or inline arguments."""
     specifications = []
 
@@ -237,7 +239,10 @@ def _display_results(report, verbose: bool):
     click.echo(f"Total Specifications: {report.total_specs}")
     click.echo(f"Passed: {report.passed_count}")
     click.echo(f"Failed: {report.failed_count}")
-    click.echo(f"Score: {report.score:.2%}")
+    click.echo(
+        f"Score: {report.score:.2%} "
+        f"({report.achieved_score:.2f}/{report.total_score_available:.2f})"
+    )
     click.echo()
 
     # Individual results

@@ -24,7 +24,7 @@ class NebulaOneBackend(OpenAIBackend):
         model_name: str = "nebula-1",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the NebulaOne backend.
@@ -50,12 +50,7 @@ class NebulaOneBackend(OpenAIBackend):
             # For now, we'll let it fall back to None and require configuration
 
         # Initialize the parent OpenAI backend with NebulaOne configuration
-        super().__init__(
-            model_name=model_name,
-            api_key=api_key,
-            base_url=base_url,
-            **kwargs
-        )
+        super().__init__(model_name=model_name, api_key=api_key, base_url=base_url, **kwargs)
 
     @property
     def name(self) -> str:
