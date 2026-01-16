@@ -8,11 +8,12 @@ from typing import List, Optional
 
 import click
 
+from . import __version__
 from .validator import DocxValidator, ValidationSpec
 
 
 @click.group()
-@click.version_option(version="0.1.0")
+@click.version_option(version=__version__)
 def cli():
     """
     docx-validator - Validate Microsoft Word .docx files using LLM analysis.
