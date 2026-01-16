@@ -237,16 +237,23 @@ def test_validation_report_all_tests_equal_weight():
 
 
 def test_validation_report_negative_scores():
-    """Test ValidationReport handles negative scores."""
+    """Test ValidationReport handles negative scores.
+
+    This test documents the edge case where negative scores could result in
+    zero or negative total_score_available. In such cases, the score calculation
+    is undefined, so it defaults to 0.0 to avoid division by zero or misleading results.
+
+    This scenario might occur if users assign penalty scores that cancel out positive scores.
+    """
     from docx_validator import ValidationReport, ValidationResult
 
-    # Test with negative score for penalty
+    # Test with negative score for penalty that cancels out positive score
     results = [
         ValidationResult(spec_name="Test 1", passed=True, confidence=1.0),
         ValidationResult(spec_name="Penalty Test", passed=False, confidence=1.0),
     ]
 
-    # When a test with negative score fails, total_score_available could be 0
+    # When a test with negative score fails, total_score_available could be 0 or negative
     # In this case the score calculation should handle it gracefully
     report = ValidationReport(
         file_path="test.docx",
@@ -254,12 +261,42 @@ def test_validation_report_negative_scores():
         total_specs=2,
         passed_count=1,
         failed_count=1,
-        score=0.0,  # When total is 0, score defaults to 0
-        total_score_available=0.0,  # 1.0 + (-1.0)
+        score=0.0,  # When total <= 0, score defaults to 0.0 (undefined calculation)
+        total_score_available=0.0,  # 1.0 + (-1.0) = 0
         achieved_score=1.0,
     )
 
     assert report.total_score_available == 0.0
+    assert report.achieved_score == 1.0
+    assert report.score == 0.0
+
+
+def test_validation_report_negative_total():
+    """Test ValidationReport with negative total score available.
+
+    This edge case occurs when the sum of negative scores exceeds positive scores.
+    The score defaults to 0.0 as the calculation would be meaningless.
+    """
+    from docx_validator import ValidationReport, ValidationResult
+
+    results = [
+        ValidationResult(spec_name="Test 1", passed=True, confidence=1.0),
+        ValidationResult(spec_name="Big Penalty", passed=False, confidence=1.0),
+    ]
+
+    # Total is negative: 1.0 + (-2.0) = -1.0
+    report = ValidationReport(
+        file_path="test.docx",
+        results=results,
+        total_specs=2,
+        passed_count=1,
+        failed_count=1,
+        score=0.0,  # Undefined when total < 0
+        total_score_available=-1.0,
+        achieved_score=1.0,
+    )
+
+    assert report.total_score_available == -1.0
     assert report.achieved_score == 1.0
     assert report.score == 0.0
 

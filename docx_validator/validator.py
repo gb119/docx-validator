@@ -131,7 +131,12 @@ class DocxValidator:
         achieved_score = sum(
             spec.score for spec, result in zip(specifications, results) if result.passed
         )
-        score = achieved_score / total_score_available if total_score_available > 0 else 0.0
+        # Handle edge cases with zero or negative total scores
+        # When total is <= 0, score calculation is undefined, so default to 0.0
+        if total_score_available > 0:
+            score = achieved_score / total_score_available
+        else:
+            score = 0.0
 
         return ValidationReport(
             file_path=file_path,
