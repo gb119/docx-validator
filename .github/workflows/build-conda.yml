@@ -30,7 +30,7 @@ jobs:
       - name: Install conda-build with mamba
         shell: bash -l {0}
         run: |
-          # Use mamba for faster environment resolution
+          # Use mamba for faster dependency resolution and installation
           mamba install -y conda-build anaconda-client
 
       - name: Create conda recipe directory
