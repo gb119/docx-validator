@@ -183,7 +183,7 @@ Build conda package locally:
 
    # Or using mamba (faster)
    mamba install conda-build
-   conda mambabuild conda-recipe
+   mamba build conda-recipe
 
 Version Bumping
 ~~~~~~~~~~~~~~~

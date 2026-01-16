@@ -107,7 +107,7 @@ jobs:
         shell: bash -l {0}
         run: |
           # Use mamba for faster environment resolution during build
-          conda mambabuild conda-recipe --output-folder conda-output
+          mamba build conda-recipe --output-folder conda-output
 
       - name: Upload conda package
         uses: actions/upload-artifact@v4
