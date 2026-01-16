@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "docx-validator"
 dynamic = ["version"]
-description = "A Python library and CLI tool that uses LLMs to validate Microsoft Word .docx files against specification requirements"
+description = "A Python library and CLI tool that uses LLMs to validate documents (DOCX, HTML, LaTeX) against specification requirements"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
