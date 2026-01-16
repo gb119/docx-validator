@@ -2,6 +2,8 @@
 
 A Python library and command-line tool that uses LLMs (via GitHub Models and pydantic-ai) to validate Microsoft Word .docx files against specification requirements.
 
+📚 **[Read the Documentation](https://gb119.github.io/docx-validator/)**
+
 ## Features
 
 - 🤖 **LLM-Powered Validation**: Uses GitHub Models through pydantic-ai for intelligent document analysis
