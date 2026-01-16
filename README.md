@@ -148,6 +148,22 @@ Specifications can be provided as JSON files:
 ]
 ```
 
+### Example Specifications
+
+The `examples/` directory contains ready-to-use specification files:
+
+- **`sample_specifications.json`**: Basic document validation (metadata, headings, layout)
+- **`structured_document_specifications.json`**: Comprehensive validation for academic/technical documents including:
+  - Title and heading structure with proper styles
+  - Figures with captions (using Insert Caption function)
+  - Cross-references to figures
+  - Tables with captions (using Insert Caption function)
+  - Cross-references to tables
+  - Numbered equations on their own line
+  - Cross-references to equations
+
+See `examples/README.md` for detailed information about each specification file.
+
 ## Validation Report
 
 The validation report includes:
