@@ -2,41 +2,49 @@
   {
     "name": "Has Title with Proper Style",
     "description": "Document must have a title using the Title style or Heading 1 style. The title should be well-formatted and appear at the beginning of the document.",
-    "category": "structure"
+    "category": "structure",
+    "score": 2.0
   },
   {
     "name": "Uses Heading Styles for Structure",
     "description": "Document must use proper heading styles (Heading 1, Heading 2, Heading 3, etc.) to create a clear hierarchical structure. Evidence of using the style function for headings and subheadings is required.",
-    "category": "structure"
+    "category": "structure",
+    "score": 1.5
   },
   {
     "name": "Has Figure with Numbered Caption",
     "description": "Document must contain at least one figure with a properly formatted caption created using Word's Insert Caption function. The caption should follow the format 'Figure X: Description' where X is a number.",
-    "category": "figures"
+    "category": "figures",
+    "score": 1.0
   },
   {
     "name": "Has Cross-Reference to Figure",
     "description": "Document must include at least one cross-reference to a figure in the text, created using Word's Cross-Reference function. The cross-reference should automatically link to the figure number or caption.",
-    "category": "figures"
+    "category": "figures",
+    "score": 1.0
   },
   {
     "name": "Has Table with Numbered Caption",
     "description": "Document must contain at least one table with a properly formatted caption created using Word's Insert Caption function. The caption should follow the format 'Table X: Description' where X is a number.",
-    "category": "tables"
+    "category": "tables",
+    "score": 1.0
   },
   {
     "name": "Has Cross-Reference to Table",
     "description": "Document must include at least one cross-reference to a table in the text, created using Word's Cross-Reference function. The cross-reference should automatically link to the table number or caption.",
-    "category": "tables"
+    "category": "tables",
+    "score": 1.0
   },
   {
     "name": "Has Numbered Equation on Own Line",
     "description": "Document must contain at least one equation positioned on its own line and numbered using Word's Insert Caption function. The equation should be centered or right-aligned with the number on the right side.",
-    "category": "equations"
+    "category": "equations",
+    "score": 0.5
   },
   {
     "name": "Has Cross-Reference to Equation",
     "description": "Document must include at least one cross-reference to an equation in the text, created using Word's Cross-Reference function. The cross-reference should automatically link to the equation number.",
-    "category": "equations"
+    "category": "equations",
+    "score": 0.5
   }
 ]

@@ -2,26 +2,31 @@
   {
     "name": "Has Title",
     "description": "Document must contain a title in the metadata or as the first heading",
-    "category": "metadata"
+    "category": "metadata",
+    "score": 2.0
   },
   {
     "name": "Has Author",
     "description": "Document must have an author specified in the metadata",
-    "category": "metadata"
+    "category": "metadata",
+    "score": 1.0
   },
   {
     "name": "Uses Heading Styles",
     "description": "Document must use proper heading styles (Heading 1, Heading 2, etc.) for document structure",
-    "category": "structure"
+    "category": "structure",
+    "score": 1.5
   },
   {
     "name": "Has Paragraphs",
     "description": "Document must contain at least one paragraph of text content",
-    "category": "content"
+    "category": "content",
+    "score": 1.0
   },
   {
     "name": "Proper Page Layout",
     "description": "Document must have proper page layout with standard page width and height",
-    "category": "formatting"
+    "category": "formatting",
+    "score": 0.5
   }
 ]

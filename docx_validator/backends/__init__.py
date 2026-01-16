@@ -40,9 +40,7 @@ def get_backend(backend_name: str, **kwargs) -> BaseBackend:
     backend_name_lower = backend_name.lower()
     if backend_name_lower not in BACKENDS:
         available = ", ".join(BACKENDS.keys())
-        raise ValueError(
-            f"Unknown backend: {backend_name}. Available backends: {available}"
-        )
+        raise ValueError(f"Unknown backend: {backend_name}. Available backends: {available}")
 
     backend_class = BACKENDS[backend_name_lower]
     return backend_class(**kwargs)

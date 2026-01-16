@@ -29,7 +29,7 @@ class OpenAIBackend(BaseBackend):
         model_name: str = "gpt-4o-mini",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the OpenAI backend.

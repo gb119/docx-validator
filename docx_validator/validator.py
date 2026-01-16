@@ -17,6 +17,7 @@ class ValidationSpec(BaseModel):
     name: str = Field(description="Name of the validation requirement")
     description: str = Field(description="Detailed description of what to check")
     category: Optional[str] = Field(default=None, description="Category of the requirement")
+    score: float = Field(default=1.0, description="Score weight for this test (default 1.0)")
 
 
 class ValidationResult(BaseModel):
@@ -36,7 +37,9 @@ class ValidationReport(BaseModel):
     total_specs: int = Field(description="Total number of specifications checked")
     passed_count: int = Field(description="Number of specifications that passed")
     failed_count: int = Field(description="Number of specifications that failed")
-    score: float = Field(description="Numerical score (passed/total)")
+    score: float = Field(description="Normalized score (achieved/total_available)")
+    total_score_available: float = Field(description="Total score available from all tests")
+    achieved_score: float = Field(description="Actual score achieved from passed tests")
 
 
 class DocxValidator:
@@ -52,7 +55,7 @@ class DocxValidator:
         model_name: str = "gpt-4o-mini",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
-        **backend_kwargs
+        **backend_kwargs,
     ):
         """
         Initialize the DocxValidator.
@@ -87,11 +90,7 @@ class DocxValidator:
 
         # Create the backend
         self.backend = get_backend(
-            backend,
-            model_name=model_name,
-            api_key=api_key,
-            base_url=base_url,
-            **backend_kwargs
+            backend, model_name=model_name, api_key=api_key, base_url=base_url, **backend_kwargs
         )
 
         # Create the validation agent
@@ -103,9 +102,7 @@ class DocxValidator:
             )
         )
 
-    def validate(
-        self, file_path: str, specifications: List[ValidationSpec]
-    ) -> ValidationReport:
+    def validate(self, file_path: str, specifications: List[ValidationSpec]) -> ValidationReport:
         """
         Validate a .docx file against a list of specifications.
 
@@ -128,7 +125,18 @@ class DocxValidator:
         # Calculate scores
         passed_count = sum(1 for r in results if r.passed)
         total_specs = len(specifications)
-        score = passed_count / total_specs if total_specs > 0 else 0.0
+
+        # Calculate weighted scores
+        # Create a mapping of spec_name to result for robust matching
+        result_map = {result.spec_name: result for result in results}
+        total_score_available = sum(spec.score for spec in specifications)
+        achieved_score = sum(spec.score for spec in specifications if result_map[spec.name].passed)
+        # Handle edge cases with zero or negative total scores
+        # When total is <= 0, score calculation is undefined, so default to 0.0
+        if total_score_available > 0:
+            score = achieved_score / total_score_available
+        else:
+            score = 0.0
 
         return ValidationReport(
             file_path=file_path,
@@ -137,6 +145,8 @@ class DocxValidator:
             passed_count=passed_count,
             failed_count=total_specs - passed_count,
             score=score,
+            total_score_available=total_score_available,
+            achieved_score=achieved_score,
         )
 
     def _validate_spec(

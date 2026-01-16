@@ -7,7 +7,7 @@ import os
 import sys
 
 # Add the project root directory to the Python path
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 
 # Import version from the package
 from docx_validator import __version__
@@ -15,9 +15,9 @@ from docx_validator import __version__
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'docx-validator'
-copyright = '2024, GB119'
-author = 'GB119'
+project = "docx-validator"
+copyright = "2024, GB119"
+author = "GB119"
 release = __version__
 version = __version__
 
@@ -25,28 +25,28 @@ version = __version__
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.intersphinx',
-    'sphinx_autodoc_typehints',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+    "sphinx_autodoc_typehints",
 ]
 
-templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+templates_path = ["_templates"]
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_theme = "sphinx_rtd_theme"
+html_static_path = ["_static"]
 
 # -- Extension configuration -------------------------------------------------
 
 # Intersphinx configuration
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'pydantic': ('https://docs.pydantic.dev/latest/', None),
+    "python": ("https://docs.python.org/3", None),
+    "pydantic": ("https://docs.pydantic.dev/latest/", None),
 }
 
 # Napoleon settings for parsing Google and NumPy style docstrings
@@ -67,13 +67,13 @@ napoleon_attr_annotations = True
 
 # Autodoc settings
 autodoc_default_options = {
-    'members': True,
-    'member-order': 'bysource',
-    'special-members': '__init__',
-    'undoc-members': True,
-    'exclude-members': '__weakref__'
+    "members": True,
+    "member-order": "bysource",
+    "special-members": "__init__",
+    "undoc-members": True,
+    "exclude-members": "__weakref__",
 }
 
 # autodoc_typehints settings
-autodoc_typehints = 'description'
+autodoc_typehints = "description"
 always_document_param_types = True
