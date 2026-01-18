@@ -496,6 +496,12 @@ def test_github_models_integration():
     This test validates three sample documents against specifications using
     GitHub's AI model service. It requires GITHUB_TOKEN to be set.
 
+    Debug logging is enabled at DEBUG level and captures:
+    - Full LLM prompts and responses from validator
+    - Backend HTTP/API transaction details
+    - Token usage information
+    - All logs are written to github_models_test.log for artifact upload
+
     The test includes sanity checks to ensure validation is actually working:
     - Verifies documents don't all have identical scores
     - Ensures all results have substantive reasoning (not empty or too short)
@@ -514,6 +520,11 @@ def test_github_models_integration():
     validator_logger = logging.getLogger('docx_tex_validator.validator')
     validator_logger.addHandler(file_handler)
     validator_logger.setLevel(logging.DEBUG)
+
+    # Also capture backend logger to get full LLM transaction details
+    backend_logger = logging.getLogger('docx_tex_validator.backends.openai')
+    backend_logger.addHandler(file_handler)
+    backend_logger.setLevel(logging.DEBUG)
 
     # Also log to console for immediate feedback
     console_handler = logging.StreamHandler()
@@ -657,6 +668,7 @@ def test_github_models_integration():
         # Clean up handlers
         validator_logger.removeHandler(file_handler)
         validator_logger.removeHandler(console_handler)
+        backend_logger.removeHandler(file_handler)
         file_handler.close()
         console_handler.close()
 
