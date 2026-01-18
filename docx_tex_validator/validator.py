@@ -3,6 +3,7 @@ Core validation module using pydantic-ai with pluggable AI backends.
 """
 
 import json
+import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
@@ -10,6 +11,9 @@ from pydantic import BaseModel, Field
 from .backends import get_backend
 from .parser import DocxParser
 from .parsers import detect_parser, get_parser
+
+# Set up module logger
+logger = logging.getLogger(__name__)
 
 
 class ValidationSpec(BaseModel):
@@ -190,10 +194,23 @@ class DocxValidator:
         # Set up the document context once for all validations
         message_history = self._setup_document_context(doc_structure)
 
-        # Validate against each specification using the shared context
+        # Check if context setup succeeded
+        use_context_method = bool(message_history)
+        if use_context_method:
+            logger.info("Using context-based validation (efficient, shares document context)")
+        else:
+            logger.info("Using legacy validation method (includes document in each request)")
+
+        # Validate against each specification
         results: List[ValidationResult] = []
         for spec in specifications:
-            result, message_history = self._validate_spec_with_context(spec, message_history)
+            if use_context_method:
+                result, message_history = self._validate_spec_with_context(
+                    spec, message_history, doc_structure
+                )
+            else:
+                # Fall back to legacy method that includes document in each request
+                result = self._validate_spec(doc_structure, spec)
             results.append(result)
 
         # Calculate scores
@@ -256,12 +273,19 @@ with: "Document structure received and ready for validation."
             response = self.backend.run_sync(self.agent, context_prompt)
             # Return the message history from this interaction
             return response.all_messages()
-        except Exception:
-            # If context setup fails, return empty history (will fall back to old method)
+        except Exception as e:
+            # If context setup fails, log the error and return empty history
+            # This will trigger fallback to the legacy validation method
+            # Note: We log the exception type but not the full message to avoid
+            # potentially exposing sensitive information in logs
+            logger.warning(
+                f"Context setup failed with {type(e).__name__}. "
+                "Falling back to legacy validation method (includes document in each request)."
+            )
             return []
 
     def _validate_spec_with_context(
-        self, spec: ValidationSpec, message_history: List[Any]
+        self, spec: ValidationSpec, message_history: List[Any], doc_structure: Dict[str, Any]
     ) -> Tuple[ValidationResult, List[Any]]:
         """Validate a specification against the document using established context.
 
@@ -270,12 +294,22 @@ with: "Document structure received and ready for validation."
                 Validation specification to check.
             message_history (List[Any]):
                 Message history containing the document context.
+            doc_structure (Dict[str, Any]):
+                Parsed document structure (used as fallback if context is lost).
 
         Returns:
             (Tuple[ValidationResult, List[Any]]):
                 A tuple containing the ValidationResult for this specification
                 and the updated message history.
         """
+        # Safety check: if message_history is empty, fall back to legacy method
+        if not message_history:
+            logger.warning(
+                f"Message history empty for spec '{spec.name}'. "
+                "Falling back to legacy validation method for this spec."
+            )
+            return self._validate_spec(doc_structure, spec), message_history
+
         # Prepare the validation prompt (without repeating the document)
         prompt = f"""
 Now validate this requirement:

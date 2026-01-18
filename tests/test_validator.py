@@ -3,6 +3,7 @@ Basic tests for the docx-tex-validator package.
 """
 
 import json
+import logging
 import os
 from pathlib import Path
 
@@ -13,6 +14,8 @@ from docx_tex_validator.parser import DocxParser
 
 # Constants
 GITHUB_MODELS_TEST_RESULTS_FILE = "github_models_test_results.json"
+GITHUB_MODELS_TEST_LOG_FILE = "github_models_test.log"
+MIN_REASONING_LENGTH = 10  # Minimum length for meaningful validation reasoning
 
 
 def test_validation_spec_creation():
@@ -372,8 +375,13 @@ def test_validate_spec_with_context():
         # Mock message history
         message_history = [{"role": "user", "content": "Document structure..."}]
 
-        # Call the method (now returns tuple)
-        result, updated_history = validator._validate_spec_with_context(spec, message_history)
+        # Mock document structure
+        doc_structure = {"metadata": {"title": "Test"}, "paragraphs": ["Content"]}
+
+        # Call the method (now returns tuple and requires doc_structure)
+        result, updated_history = validator._validate_spec_with_context(
+            spec, message_history, doc_structure
+        )
 
         # Verify the result
         assert result.spec_name == "Has Title"
@@ -484,105 +492,173 @@ def test_context_based_validation_efficiency():
 )
 def test_github_models_integration():
     """Test document validation against GitHub models using test data files.
-    
+
     This test validates three sample documents against specifications using
     GitHub's AI model service. It requires GITHUB_TOKEN to be set.
+
+    The test includes sanity checks to ensure validation is actually working:
+    - Verifies documents don't all have identical scores
+    - Ensures all results have substantive reasoning (not empty or too short)
+
+    These checks prevent silent validation failures where the test passes
+    but documents aren't actually being validated properly.
     """
-    # Get the test data directory
-    test_data_dir = Path(__file__).parent / "data"
-    
-    # Load specifications from JSON file
-    spec_file = test_data_dir / "specification.json"
-    with open(spec_file, "r") as f:
-        spec_data = json.load(f)
-    
-    # Convert JSON specs to ValidationSpec objects
-    specs = [ValidationSpec(**spec) for spec in spec_data]
-    
-    # Get the three docx files
-    docx_files = [
-        test_data_dir / "Fully_correct.docx",
-        test_data_dir / "Partially Correct.docx",
-        test_data_dir / "Mostly Incorrect.docx",
-    ]
-    
-    # Verify all files exist
-    for docx_file in docx_files:
-        assert docx_file.exists(), f"Test file not found: {docx_file}"
-    
-    # Create validator with GitHub backend
-    github_token = os.environ["GITHUB_TOKEN"]
-    validator = DocxValidator(
-        backend="github",
-        model_name="gpt-4o-mini",
-        api_key=github_token,
-    )
-    
-    # Validate each document
-    reports = {}
-    for docx_file in docx_files:
-        report = validator.validate(str(docx_file), specs)
-        reports[docx_file.name] = report
-        
-        # Basic assertions
-        assert report.total_specs == len(specs)
-        assert report.passed_count + report.failed_count == report.total_specs
-        assert 0.0 <= report.score <= 1.0
-        assert len(report.results) == len(specs)
-    
-    # Create JSON artifact with detailed results organized by file
-    output_data = {}
-    
-    # Organize results by file, with each file showing all test results
-    for docx_file in docx_files:
-        doc_name = docx_file.name
-        report = reports[doc_name]
-        
-        # Build test results for this document
-        test_results = []
-        for result in report.results:
-            test_results.append({
-                "test_name": result.spec_name,
-                "passed": result.passed,
-                "confidence": result.confidence,
-                "reasoning": result.reasoning
-            })
-        
-        output_data[doc_name] = {
-            "total_score": report.score,
-            "passed_count": report.passed_count,
-            "failed_count": report.failed_count,
-            "total_specs": report.total_specs,
-            "tests": test_results
-        }
-    
-    # Write JSON artifact
-    output_file = Path(__file__).parent / GITHUB_MODELS_TEST_RESULTS_FILE
-    with open(output_file, "w") as f:
-        json.dump(output_data, f, indent=2)
-    
-    print(f"\n=== Test results written to {output_file} ===")
-    
-    # Verify that "Fully_correct.docx" has the highest score
-    fully_correct_score = reports["Fully_correct.docx"].score
-    partially_correct_score = reports["Partially Correct.docx"].score
-    mostly_incorrect_score = reports["Mostly Incorrect.docx"].score
-    
-    # The fully correct document should have a higher score than the others
-    assert fully_correct_score >= partially_correct_score, (
-        f"Fully correct score ({fully_correct_score}) should be >= "
-        f"partially correct score ({partially_correct_score})"
-    )
-    assert fully_correct_score >= mostly_incorrect_score, (
-        f"Fully correct score ({fully_correct_score}) should be >= "
-        f"mostly incorrect score ({mostly_incorrect_score})"
-    )
-    
-    # Print summary for debugging
-    print("\n=== Validation Results ===")
-    for doc_name, report in reports.items():
-        print(f"{doc_name}: {report.score:.2%} "
-              f"({report.passed_count}/{report.total_specs} passed)")
+    # Set up logging to file for this test
+    log_file = Path(__file__).parent / GITHUB_MODELS_TEST_LOG_FILE
+    file_handler = logging.FileHandler(log_file, mode='w')
+    file_handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+
+    # Get the validator logger and add our file handler
+    validator_logger = logging.getLogger('docx_tex_validator.validator')
+    validator_logger.addHandler(file_handler)
+    validator_logger.setLevel(logging.DEBUG)
+
+    # Also log to console for immediate feedback
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    validator_logger.addHandler(console_handler)
+
+    try:
+        # Get the test data directory
+        test_data_dir = Path(__file__).parent / "data"
+
+        # Load specifications from JSON file
+        spec_file = test_data_dir / "specification.json"
+        with open(spec_file, "r") as f:
+            spec_data = json.load(f)
+
+        # Convert JSON specs to ValidationSpec objects
+        specs = [ValidationSpec(**spec) for spec in spec_data]
+
+        # Get the three docx files
+        docx_files = [
+            test_data_dir / "Fully_correct.docx",
+            test_data_dir / "Partially Correct.docx",
+            test_data_dir / "Mostly Incorrect.docx",
+        ]
+
+        # Verify all files exist
+        for docx_file in docx_files:
+            assert docx_file.exists(), f"Test file not found: {docx_file}"
+
+        # Create validator with GitHub backend
+        github_token = os.environ["GITHUB_TOKEN"]
+        validator = DocxValidator(
+            backend="github",
+            model_name="gpt-4o-mini",
+            api_key=github_token,
+        )
+
+        # Validate each document
+        reports = {}
+        for docx_file in docx_files:
+            report = validator.validate(str(docx_file), specs)
+            reports[docx_file.name] = report
+
+            # Basic assertions
+            assert report.total_specs == len(specs)
+            assert report.passed_count + report.failed_count == report.total_specs
+            assert 0.0 <= report.score <= 1.0
+            assert len(report.results) == len(specs)
+
+        # Create JSON artifact with detailed results organized by file
+        output_data = {}
+
+        # Organize results by file, with each file showing all test results
+        for docx_file in docx_files:
+            doc_name = docx_file.name
+            report = reports[doc_name]
+
+            # Build test results for this document
+            test_results = []
+            for result in report.results:
+                test_results.append({
+                    "test_name": result.spec_name,
+                        "passed": result.passed,
+                    "confidence": result.confidence,
+                    "reasoning": result.reasoning
+                })
+
+            output_data[doc_name] = {
+                "total_score": report.score,
+                "passed_count": report.passed_count,
+                "failed_count": report.failed_count,
+                "total_specs": report.total_specs,
+                "tests": test_results
+            }
+
+        # Write JSON artifact
+        output_file = Path(__file__).parent / GITHUB_MODELS_TEST_RESULTS_FILE
+        with open(output_file, "w") as f:
+            json.dump(output_data, f, indent=2)
+
+        print(f"\n=== Test results written to {output_file} ===")
+
+        # Verify that "Fully_correct.docx" has the highest score
+        fully_correct_score = reports["Fully_correct.docx"].score
+        partially_correct_score = reports["Partially Correct.docx"].score
+        mostly_incorrect_score = reports["Mostly Incorrect.docx"].score
+
+        # The fully correct document should have a higher score than the others
+        assert fully_correct_score >= partially_correct_score, (
+            f"Fully correct score ({fully_correct_score}) should be >= "
+            f"partially correct score ({partially_correct_score})"
+        )
+        assert fully_correct_score >= mostly_incorrect_score, (
+            f"Fully correct score ({fully_correct_score}) should be >= "
+            f"mostly incorrect score ({mostly_incorrect_score})"
+        )
+
+        # Sanity check: Ensure validation is actually happening
+        # All three documents should not have identical results
+        all_scores = [fully_correct_score, partially_correct_score, mostly_incorrect_score]
+        assert not all(s == all_scores[0] for s in all_scores), (
+            "All documents have identical scores, validation may not be working properly. "
+            f"Scores: Fully correct={fully_correct_score}, "
+            f"Partially correct={partially_correct_score}, "
+            f"Mostly incorrect={mostly_incorrect_score}"
+        )
+
+        # Additional sanity check: Ensure results contain actual reasoning
+        for doc_name, report in reports.items():
+            for result in report.results:
+                assert result.reasoning, (
+                    f"Result for '{result.spec_name}' in '{doc_name}' has no reasoning. "
+                    "Validation may not be working properly."
+                )
+                # Reasoning should be more than just a generic response
+                assert len(result.reasoning) > MIN_REASONING_LENGTH, (
+                    f"Result for '{result.spec_name}' in '{doc_name}' has very short reasoning: "
+                    f"'{result.reasoning}'. Validation may not be working properly."
+                )
+
+        # Print summary for debugging
+        print("\n=== Validation Results ===")
+        for doc_name, report in reports.items():
+            print(f"{doc_name}: {report.score:.2%} "
+                  f"({report.passed_count}/{report.total_specs} passed)")
+
+    finally:
+        # Write summary to log file
+        validator_logger.info("\n" + "=" * 80)
+        validator_logger.info("TEST SUMMARY")
+        validator_logger.info("=" * 80)
+        if 'reports' in locals():
+            for doc_name, report in reports.items():
+                validator_logger.info(
+                    f"{doc_name}: {report.score:.2%} "
+                    f"({report.passed_count}/{report.total_specs} passed)"
+                )
+        validator_logger.info("=" * 80)
+
+        # Clean up handlers
+        validator_logger.removeHandler(file_handler)
+        validator_logger.removeHandler(console_handler)
+        file_handler.close()
+        console_handler.close()
 
 
 if __name__ == "__main__":
