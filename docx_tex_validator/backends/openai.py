@@ -14,14 +14,31 @@ from .base import BaseBackend
 
 
 class OpenAIBackend(BaseBackend):
-    """
-    Backend for OpenAI and OpenAI-compatible APIs.
+    """Backend for OpenAI and OpenAI-compatible APIs.
 
     This includes:
     - OpenAI API (https://api.openai.com/v1)
     - GitHub Models (https://models.inference.ai.azure.com)
     - Azure OpenAI
     - Any other OpenAI-compatible endpoint
+
+    Keyword Parameters:
+        model_name (str):
+            Name of the model to use.
+        api_key (str):
+            API key for authentication. If not provided, will try:
+            - GITHUB_TOKEN environment variable
+            - OPENAI_API_KEY environment variable
+        base_url (str):
+            Base URL for the API endpoint. If not provided, will try:
+            - OPENAI_BASE_URL environment variable
+            - Default to OpenAI API
+        **kwargs:
+            Additional configuration options.
+
+    Examples:
+        >>> backend = OpenAIBackend(model_name='gpt-4o-mini')
+        >>> backend = OpenAIBackend(api_key='your-key', base_url='https://api.openai.com/v1')
     """
 
     def __init__(
@@ -31,19 +48,6 @@ class OpenAIBackend(BaseBackend):
         base_url: Optional[str] = None,
         **kwargs,
     ):
-        """
-        Initialize the OpenAI backend.
-
-        Args:
-            model_name: Name of the model to use (default: gpt-4o-mini)
-            api_key: API key for authentication. If not provided, will try:
-                    - GITHUB_TOKEN environment variable
-                    - OPENAI_API_KEY environment variable
-            base_url: Base URL for the API endpoint. If not provided, will try:
-                     - OPENAI_BASE_URL environment variable
-                     - Default to OpenAI API
-            **kwargs: Additional configuration options
-        """
         super().__init__(model_name, api_key, **kwargs)
 
         # Set API key from environment if not provided
@@ -65,14 +69,15 @@ class OpenAIBackend(BaseBackend):
         self.model = OpenAIChatModel(self.model_name)
 
     def get_agent(self, system_prompt: str) -> Agent:
-        """
-        Get an agent configured with this backend.
+        """Get an agent configured with this backend.
 
         Args:
-            system_prompt: System prompt to use for the agent
+            system_prompt (str):
+                System prompt to use for the agent.
 
         Returns:
-            Agent instance configured for this backend
+            (Agent):
+                Agent instance configured for this backend.
         """
         return Agent(
             model=self.model,
@@ -80,16 +85,21 @@ class OpenAIBackend(BaseBackend):
         )
 
     def run_sync(self, agent: Agent, prompt: str, message_history=None):
-        """
-        Run a synchronous inference request.
+        """Run a synchronous inference request.
 
         Args:
-            agent: The agent to use for inference
-            prompt: The user prompt
-            message_history: Optional message history for context continuity
+            agent (Agent):
+                The agent to use for inference.
+            prompt (str):
+                The user prompt.
+
+        Keyword Parameters:
+            message_history (Any):
+                Optional message history for context continuity.
 
         Returns:
-            AgentRunResult containing the response and message history
+            (Any):
+                AgentRunResult containing the response and message history.
         """
         if message_history:
             response = agent.run_sync(prompt, message_history=message_history)
@@ -99,5 +109,10 @@ class OpenAIBackend(BaseBackend):
 
     @property
     def name(self) -> str:
-        """Return the name of this backend."""
+        """Return the name of this backend.
+
+        Returns:
+            (str):
+                Backend name identifier.
+        """
         return "openai"

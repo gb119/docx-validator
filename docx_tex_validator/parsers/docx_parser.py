@@ -11,25 +11,43 @@ from .base import BaseParser
 
 
 class DocxParser(BaseParser):
-    """Parser for extracting structure and metadata from .docx files."""
+    """Parser for extracting structure and metadata from .docx files.
+
+    Examples:
+        >>> parser = DocxParser()
+        >>> structure = parser.parse("document.docx")
+        >>> print(structure['metadata']['title'])
+    """
 
     def supports_extension(self, extension: str) -> bool:
-        """Check if this parser supports the given file extension."""
+        """Check if this parser supports the given file extension.
+
+        Args:
+            extension (str):
+                File extension to check.
+
+        Returns:
+            (bool):
+                True if extension is '.docx', False otherwise.
+        """
         return extension.lower() == ".docx"
 
     def parse(self, file_path: str) -> Dict[str, Any]:
-        """
-        Parse a .docx file and extract its structure and content information.
+        """Parse a .docx file and extract its structure and content information.
 
         Args:
-            file_path: Path to the .docx file
+            file_path (str):
+                Path to the .docx file.
 
         Returns:
-            Dictionary containing document structure information
+            (Dict[str, Any]):
+                Dictionary containing document structure information.
 
         Raises:
-            FileNotFoundError: If the file doesn't exist
-            ValueError: If the file is not a valid .docx file
+            FileNotFoundError:
+                If the file doesn't exist.
+            ValueError:
+                If the file is not a valid .docx file.
         """
         self.validate_file(file_path)
 
@@ -123,10 +141,17 @@ class DocxParser(BaseParser):
 
     @staticmethod
     def parse_docx(file_path: str) -> Dict[str, Any]:
-        """
-        Legacy method for backward compatibility.
+        """Legacy method for backward compatibility.
 
         This method is deprecated. Use parse() instead.
+
+        Args:
+            file_path (str):
+                Path to the .docx file.
+
+        Returns:
+            (Dict[str, Any]):
+                Dictionary containing document structure information.
         """
         parser = DocxParser()
         return parser.parse(file_path)

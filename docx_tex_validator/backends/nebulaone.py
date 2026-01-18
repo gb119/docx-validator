@@ -11,12 +11,29 @@ from .openai import OpenAIBackend
 
 
 class NebulaOneBackend(OpenAIBackend):
-    """
-    Backend for NebulaOne AI models.
+    """Backend for NebulaOne AI models.
 
     NebulaOne is treated as an OpenAI-compatible endpoint with specific defaults.
     You can configure the endpoint URL via the NEBULAONE_BASE_URL environment variable
     or the base_url parameter.
+
+    Keyword Parameters:
+        model_name (str):
+            Name of the model to use.
+        api_key (str):
+            API key for authentication. If not provided, will try:
+            - NEBULAONE_API_KEY environment variable
+            - OPENAI_API_KEY environment variable
+        base_url (str):
+            Base URL for the NebulaOne API endpoint. If not provided, will try:
+            - NEBULAONE_BASE_URL environment variable
+            - Default to a common NebulaOne endpoint
+        **kwargs:
+            Additional configuration options.
+
+    Examples:
+        >>> backend = NebulaOneBackend(model_name='nebula-1')
+        >>> backend = NebulaOneBackend(api_key='your-key', base_url='https://api.nebulaone.example')
     """
 
     def __init__(
@@ -26,19 +43,6 @@ class NebulaOneBackend(OpenAIBackend):
         base_url: Optional[str] = None,
         **kwargs,
     ):
-        """
-        Initialize the NebulaOne backend.
-
-        Args:
-            model_name: Name of the model to use (default: nebula-1)
-            api_key: API key for authentication. If not provided, will try:
-                    - NEBULAONE_API_KEY environment variable
-                    - OPENAI_API_KEY environment variable
-            base_url: Base URL for the NebulaOne API endpoint. If not provided, will try:
-                     - NEBULAONE_BASE_URL environment variable
-                     - Default to a common NebulaOne endpoint
-            **kwargs: Additional configuration options
-        """
         # Set API key from NebulaOne environment variable if not provided
         if api_key is None:
             api_key = os.getenv("NEBULAONE_API_KEY") or os.getenv("OPENAI_API_KEY")
@@ -54,5 +58,10 @@ class NebulaOneBackend(OpenAIBackend):
 
     @property
     def name(self) -> str:
-        """Return the name of this backend."""
+        """Return the name of this backend.
+
+        Returns:
+            (str):
+                Backend name identifier.
+        """
         return "nebulaone"

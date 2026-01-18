@@ -8,25 +8,43 @@ from .base import BaseParser
 
 
 class LaTeXParser(BaseParser):
-    """Parser for extracting structure and metadata from LaTeX files."""
+    """Parser for extracting structure and metadata from LaTeX files.
+
+    Examples:
+        >>> parser = LaTeXParser()
+        >>> structure = parser.parse("document.tex")
+        >>> print(structure['metadata']['title'])
+    """
 
     def supports_extension(self, extension: str) -> bool:
-        """Check if this parser supports the given file extension."""
+        """Check if this parser supports the given file extension.
+
+        Args:
+            extension (str):
+                File extension to check.
+
+        Returns:
+            (bool):
+                True if extension is '.tex' or '.latex', False otherwise.
+        """
         return extension.lower() in [".tex", ".latex"]
 
     def parse(self, file_path: str) -> Dict[str, Any]:
-        """
-        Parse a LaTeX file and extract its structure and content information.
+        """Parse a LaTeX file and extract its structure and content information.
 
         Args:
-            file_path: Path to the LaTeX file
+            file_path (str):
+                Path to the LaTeX file.
 
         Returns:
-            Dictionary containing document structure information
+            (Dict[str, Any]):
+                Dictionary containing document structure information.
 
         Raises:
-            FileNotFoundError: If the file doesn't exist
-            ValueError: If the file is not a valid LaTeX file
+            FileNotFoundError:
+                If the file doesn't exist.
+            ValueError:
+                If the file is not a valid LaTeX file.
         """
         self.validate_file(file_path)
 
@@ -41,7 +59,18 @@ class LaTeXParser(BaseParser):
             raise ValueError(f"Failed to parse LaTeX file: {e}") from e
 
     def _parse_latex(self, file_path: str, content: str) -> Dict[str, Any]:
-        """Parse LaTeX content and extract structure."""
+        """Parse LaTeX content and extract structure.
+
+        Args:
+            file_path (str):
+                Path to the LaTeX file.
+            content (str):
+                Raw LaTeX content.
+
+        Returns:
+            (Dict[str, Any]):
+                Dictionary containing parsed LaTeX structure.
+        """
         import re
 
         # Extract document class
@@ -144,7 +173,16 @@ class LaTeXParser(BaseParser):
         }
 
     def _clean_latex(self, text: str) -> str:
-        """Clean LaTeX commands from text."""
+        """Clean LaTeX commands from text.
+
+        Args:
+            text (str):
+                Text containing LaTeX commands.
+
+        Returns:
+            (str):
+                Cleaned text with LaTeX commands removed.
+        """
         import re
 
         # Remove common LaTeX commands but keep the text

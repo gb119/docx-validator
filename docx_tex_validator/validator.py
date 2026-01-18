@@ -13,7 +13,18 @@ from .parsers import detect_parser, get_parser
 
 
 class ValidationSpec(BaseModel):
-    """Specification for document validation requirements."""
+    """Specification for document validation requirements.
+
+    Attributes:
+        name (str):
+            Name of the validation requirement.
+        description (str):
+            Detailed description of what to check.
+        category (str):
+            Category of the requirement.
+        score (float):
+            Score weight for this test (default 1.0).
+    """
 
     name: str = Field(description="Name of the validation requirement")
     description: str = Field(description="Detailed description of what to check")
@@ -22,7 +33,18 @@ class ValidationSpec(BaseModel):
 
 
 class ValidationResult(BaseModel):
-    """Result of a single validation check."""
+    """Result of a single validation check.
+
+    Attributes:
+        spec_name (str):
+            Name of the validation specification.
+        passed (bool):
+            Whether the validation passed.
+        confidence (float):
+            Confidence score between 0.0 and 1.0.
+        reasoning (str):
+            Explanation of the result.
+    """
 
     spec_name: str = Field(description="Name of the validation specification")
     passed: bool = Field(description="Whether the validation passed")
@@ -31,7 +53,26 @@ class ValidationResult(BaseModel):
 
 
 class ValidationReport(BaseModel):
-    """Complete validation report for a document."""
+    """Complete validation report for a document.
+
+    Attributes:
+        file_path (str):
+            Path to the validated document.
+        results (List[ValidationResult]):
+            List of validation results.
+        total_specs (int):
+            Total number of specifications checked.
+        passed_count (int):
+            Number of specifications that passed.
+        failed_count (int):
+            Number of specifications that failed.
+        score (float):
+            Normalized score (achieved/total_available).
+        total_score_available (float):
+            Total score available from all tests.
+        achieved_score (float):
+            Actual score achieved from passed tests.
+    """
 
     file_path: str = Field(description="Path to the validated document")
     results: List[ValidationResult] = Field(description="List of validation results")
@@ -44,11 +85,42 @@ class ValidationReport(BaseModel):
 
 
 class DocxValidator:
-    """
-    Validator for documents using LLM-based analysis.
+    """Validator for documents using LLM-based analysis.
 
     Supports multiple AI backends including OpenAI, GitHub Models, and NebulaOne.
     Supports multiple document formats including DOCX, HTML, and LaTeX.
+
+    Keyword Parameters:
+        backend (str):
+            Name of the backend to use ('openai', 'github', 'nebulaone').
+        model_name (str):
+            Name of the model to use.
+        api_key (str):
+            API key for authentication. If not provided, will try environment variables:
+            For OpenAI/GitHub: GITHUB_TOKEN or OPENAI_API_KEY.
+            For NebulaOne: NEBULAONE_API_KEY or OPENAI_API_KEY.
+        base_url (str):
+            Base URL for the API endpoint. If not provided, will try environment variables:
+            For OpenAI/GitHub: OPENAI_BASE_URL.
+            For NebulaOne: NEBULAONE_BASE_URL.
+        parser (str):
+            Name of the parser to use ('docx', 'html', 'latex').
+            If not provided, parser will be auto-detected from file extension.
+        **backend_kwargs:
+            Additional backend-specific configuration options.
+
+    Examples:
+        # Use OpenAI (default) with auto-detected parser
+        validator = DocxValidator()
+
+        # Use GitHub Models with explicit HTML parser
+        validator = DocxValidator(backend='github', parser='html', api_key='ghp_xxx')
+
+        # Use NebulaOne with LaTeX parser
+        validator = DocxValidator(
+            backend='nebulaone', model_name='nebula-1',
+            parser='latex', api_key='your-key', base_url='https://api.nebulaone.example'
+        )
     """
 
     def __init__(
@@ -60,37 +132,6 @@ class DocxValidator:
         parser: Optional[str] = None,
         **backend_kwargs,
     ):
-        """
-        Initialize the DocxValidator.
-
-        Args:
-            backend: Name of the backend to use ('openai', 'github', 'nebulaone').
-                    Default is 'openai'.
-            model_name: Name of the model to use. Default is 'gpt-4o-mini'.
-            api_key: API key for authentication. If not provided, will try environment variables:
-                    - For OpenAI/GitHub: GITHUB_TOKEN or OPENAI_API_KEY
-                    - For NebulaOne: NEBULAONE_API_KEY or OPENAI_API_KEY
-            base_url: Base URL for the API endpoint. If not provided,
-                     will try environment variables:
-                     - For OpenAI/GitHub: OPENAI_BASE_URL
-                     - For NebulaOne: NEBULAONE_BASE_URL
-            parser: Name of the parser to use ('docx', 'html', 'latex').
-                   If not provided, parser will be auto-detected from file extension.
-            **backend_kwargs: Additional backend-specific configuration options
-
-        Examples:
-            # Use OpenAI (default) with auto-detected parser
-            validator = DocxValidator()
-
-            # Use GitHub Models with explicit HTML parser
-            validator = DocxValidator(backend='github', parser='html', api_key='ghp_xxx')
-
-            # Use NebulaOne with LaTeX parser
-            validator = DocxValidator(
-                backend='nebulaone', model_name='nebula-1',
-                parser='latex', api_key='your-key', base_url='https://api.nebulaone.example'
-            )
-        """
         # Store parser preference for auto-detection
         self._parser_name = parser
         # For backward compatibility, maintain a parser instance (will be docx by default)
@@ -111,8 +152,7 @@ class DocxValidator:
         )
 
     def validate(self, file_path: str, specifications: List[ValidationSpec]) -> ValidationReport:
-        """
-        Validate a document file against a list of specifications.
+        """Validate a document file against a list of specifications.
 
         This method optimizes LLM API calls by setting up the document context once,
         then validating each specification against that context using message history.
@@ -123,11 +163,20 @@ class DocxValidator:
         The parser is auto-detected from file extension if not explicitly specified.
 
         Args:
-            file_path: Path to the document file to validate
-            specifications: List of validation specifications to check
+            file_path (str):
+                Path to the document file to validate.
+            specifications (List[ValidationSpec]):
+                List of validation specifications to check.
 
         Returns:
-            ValidationReport containing all validation results and scores
+            (ValidationReport):
+                ValidationReport containing all validation results and scores.
+
+        Examples:
+            >>> validator = DocxValidator()
+            >>> specs = [ValidationSpec(name="Has Title", description="Must have a title")]
+            >>> report = validator.validate("document.docx", specs)
+            >>> print(f"Score: {report.score:.2%}")
         """
         # Detect or use the appropriate parser
         if self._parser_name:
@@ -175,16 +224,19 @@ class DocxValidator:
         )
 
     def _setup_document_context(self, doc_structure: Dict[str, Any]) -> List[Any]:
-        """
-        Set up the document context for validation by sending the document structure
-        once to the LLM. This establishes context that can be reused for multiple
-        validation checks without repeating the document structure.
+        """Set up the document context for validation.
+
+        Sends the document structure once to the LLM. This establishes context
+        that can be reused for multiple validation checks without repeating
+        the document structure.
 
         Args:
-            doc_structure: Parsed document structure
+            doc_structure (Dict[str, Any]):
+                Parsed document structure.
 
         Returns:
-            Message history list that can be passed to subsequent validation calls
+            (List[Any]):
+                Message history list that can be passed to subsequent validation calls.
         """
         # Prepare the context setup prompt
         context_prompt = f"""
@@ -211,15 +263,18 @@ with: "Document structure received and ready for validation."
     def _validate_spec_with_context(
         self, spec: ValidationSpec, message_history: List[Any]
     ) -> Tuple[ValidationResult, List[Any]]:
-        """
-        Validate a specification against the document using established context.
+        """Validate a specification against the document using established context.
 
         Args:
-            spec: Validation specification to check
-            message_history: Message history containing the document context
+            spec (ValidationSpec):
+                Validation specification to check.
+            message_history (List[Any]):
+                Message history containing the document context.
 
         Returns:
-            Tuple of (ValidationResult, updated_message_history)
+            (Tuple[ValidationResult, List[Any]]):
+                A tuple containing the ValidationResult for this specification
+                and the updated message history.
         """
         # Prepare the validation prompt (without repeating the document)
         prompt = f"""
@@ -291,18 +346,20 @@ Reasoning: Your explanation here
     def _validate_spec(
         self, doc_structure: Dict[str, Any], spec: ValidationSpec
     ) -> ValidationResult:
-        """
-        Validate document structure against a single specification using LLM.
+        """Validate document structure against a single specification using LLM.
 
         This is the legacy method that includes the full document in each request.
         It's kept for backward compatibility but is not used by the default validate() method.
 
         Args:
-            doc_structure: Parsed document structure
-            spec: Validation specification to check
+            doc_structure (Dict[str, Any]):
+                Parsed document structure.
+            spec (ValidationSpec):
+                Validation specification to check.
 
         Returns:
-            ValidationResult for this specification
+            (ValidationResult):
+                ValidationResult for this specification.
         """
         # Prepare the validation prompt
         prompt = f"""

@@ -20,18 +20,23 @@ BACKENDS: Dict[str, Type[BaseBackend]] = {
 
 
 def get_backend(backend_name: str, **kwargs) -> BaseBackend:
-    """
-    Get a backend instance by name.
+    """Get a backend instance by name.
 
     Args:
-        backend_name: Name of the backend to use (e.g., 'openai', 'github', 'nebulaone')
-        **kwargs: Configuration arguments to pass to the backend
+        backend_name (str):
+            Name of the backend to use (e.g., 'openai', 'github', 'nebulaone').
+
+    Keyword Parameters:
+        **kwargs:
+            Configuration arguments to pass to the backend.
 
     Returns:
-        Configured backend instance
+        (BaseBackend):
+            Configured backend instance.
 
     Raises:
-        ValueError: If the backend name is not recognized
+        ValueError:
+            If the backend name is not recognized.
 
     Examples:
         >>> backend = get_backend('openai', model_name='gpt-4')

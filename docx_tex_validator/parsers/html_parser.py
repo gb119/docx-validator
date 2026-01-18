@@ -8,25 +8,43 @@ from .base import BaseParser
 
 
 class HTMLParser(BaseParser):
-    """Parser for extracting structure and metadata from HTML files."""
+    """Parser for extracting structure and metadata from HTML files.
+
+    Examples:
+        >>> parser = HTMLParser()
+        >>> structure = parser.parse("document.html")
+        >>> print(structure['metadata']['title'])
+    """
 
     def supports_extension(self, extension: str) -> bool:
-        """Check if this parser supports the given file extension."""
+        """Check if this parser supports the given file extension.
+
+        Args:
+            extension (str):
+                File extension to check.
+
+        Returns:
+            (bool):
+                True if extension is '.html' or '.htm', False otherwise.
+        """
         return extension.lower() in [".html", ".htm"]
 
     def parse(self, file_path: str) -> Dict[str, Any]:
-        """
-        Parse an HTML file and extract its structure and content information.
+        """Parse an HTML file and extract its structure and content information.
 
         Args:
-            file_path: Path to the HTML file
+            file_path (str):
+                Path to the HTML file.
 
         Returns:
-            Dictionary containing document structure information
+            (Dict[str, Any]):
+                Dictionary containing document structure information.
 
         Raises:
-            FileNotFoundError: If the file doesn't exist
-            ValueError: If the file is not a valid HTML file
+            FileNotFoundError:
+                If the file doesn't exist.
+            ValueError:
+                If the file is not a valid HTML file.
         """
         self.validate_file(file_path)
 
@@ -56,7 +74,20 @@ class HTMLParser(BaseParser):
     def _parse_with_beautifulsoup(
         self, file_path: str, soup: Any, raw_content: str
     ) -> Dict[str, Any]:
-        """Parse HTML using BeautifulSoup."""
+        """Parse HTML using BeautifulSoup.
+
+        Args:
+            file_path (str):
+                Path to the HTML file.
+            soup (Any):
+                BeautifulSoup object.
+            raw_content (str):
+                Raw HTML content.
+
+        Returns:
+            (Dict[str, Any]):
+                Dictionary containing parsed HTML structure.
+        """
         # Extract metadata from meta tags and title
         metadata = {}
         title_tag = soup.find("title")
@@ -117,7 +148,18 @@ class HTMLParser(BaseParser):
         }
 
     def _parse_basic(self, file_path: str, content: str) -> Dict[str, Any]:
-        """Basic HTML parsing without BeautifulSoup."""
+        """Basic HTML parsing without BeautifulSoup.
+
+        Args:
+            file_path (str):
+                Path to the HTML file.
+            content (str):
+                Raw HTML content.
+
+        Returns:
+            (Dict[str, Any]):
+                Dictionary containing parsed HTML structure.
+        """
         import re
 
         # Extract title

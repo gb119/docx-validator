@@ -15,8 +15,7 @@ from .validator import DocxValidator, ValidationSpec
 @click.group()
 @click.version_option(version=__version__)
 def cli():
-    """
-    doc_validator - Validate documents using LLM analysis.
+    """doc_validator - Validate documents using LLM analysis.
 
     This tool uses AI models and pydantic-ai to check if documents
     conform to specification requirements.
@@ -95,12 +94,31 @@ def validate(
     output: Optional[str],
     verbose: bool,
 ):
-    """
-    Validate a document file against specifications.
+    """Validate a document file against specifications.
 
-    FILE_PATH: Path to the document file to validate (supports .docx, .html, .htm, .tex, .latex)
+    Args:
+        file_path (str):
+            Path to the document file to validate (supports .docx, .html, .htm, .tex, .latex).
+        spec_file (str):
+            JSON file containing validation specifications.
+        spec (tuple):
+            Inline specification in format 'name:description'.
+        backend (str):
+            AI backend to use: 'openai', 'github', or 'nebulaone'.
+        model (str):
+            Model name to use.
+        parser (str):
+            Document parser to use: 'docx', 'html', or 'latex'.
+        api_key (str):
+            API key for authentication.
+        base_url (str):
+            Base URL for the API endpoint.
+        output (str):
+            Output file for results (JSON format).
+        verbose (bool):
+            Show detailed validation results.
 
-    Example:
+    Examples:
         # Use default OpenAI backend with auto-detected parser
         doc_validator validate document.docx -s specs.json
 
@@ -168,12 +186,13 @@ def validate(
 @cli.command()
 @click.argument("output_file", type=click.Path())
 def init_spec(output_file: str):
-    """
-    Create a sample specification file.
+    """Create a sample specification file.
 
-    OUTPUT_FILE: Path where the specification file will be created
+    Args:
+        output_file (str):
+            Path where the specification file will be created.
 
-    Example:
+    Examples:
         doc_validator init-spec specifications.json
     """
     sample_specs = [
@@ -213,7 +232,18 @@ def init_spec(output_file: str):
 
 
 def _load_specifications(spec_file: Optional[str], inline_specs: tuple) -> List[ValidationSpec]:
-    """Load specifications from file and/or inline arguments."""
+    """Load specifications from file and/or inline arguments.
+
+    Args:
+        spec_file (Optional[str]):
+            Path to JSON file containing specifications.
+        inline_specs (tuple):
+            Tuple of inline specification strings.
+
+    Returns:
+        (List[ValidationSpec]):
+            List of ValidationSpec objects.
+    """
     specifications = []
 
     # Load from file
@@ -241,7 +271,14 @@ def _load_specifications(spec_file: Optional[str], inline_specs: tuple) -> List[
 
 
 def _display_results(report, verbose: bool):
-    """Display validation results to console."""
+    """Display validation results to console.
+
+    Args:
+        report (ValidationReport):
+            The validation report to display.
+        verbose (bool):
+            Whether to show detailed results.
+    """
     click.echo("=" * 70)
     click.echo("VALIDATION RESULTS")
     click.echo("=" * 70)
@@ -271,13 +308,24 @@ def _display_results(report, verbose: bool):
 
 
 def _save_results(report, output_file: str):
-    """Save validation results to a JSON file."""
+    """Save validation results to a JSON file.
+
+    Args:
+        report (ValidationReport):
+            The validation report to save.
+        output_file (str):
+            Path to the output JSON file.
+    """
     with open(output_file, "w") as f:
         json.dump(report.model_dump(), f, indent=2)
 
 
 def main():
-    """Main entry point for the CLI."""
+    """Main entry point for the CLI.
+
+    Examples:
+        >>> main()
+    """
     cli()
 
 

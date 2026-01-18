@@ -21,18 +21,23 @@ PARSERS: Dict[str, Type[BaseParser]] = {
 
 
 def get_parser(parser_name: str, **kwargs) -> BaseParser:
-    """
-    Get a parser instance by name.
+    """Get a parser instance by name.
 
     Args:
-        parser_name: Name of the parser to use (e.g., 'docx', 'html', 'latex')
-        **kwargs: Configuration arguments to pass to the parser
+        parser_name (str):
+            Name of the parser to use (e.g., 'docx', 'html', 'latex').
+
+    Keyword Parameters:
+        **kwargs:
+            Configuration arguments to pass to the parser.
 
     Returns:
-        Configured parser instance
+        (BaseParser):
+            Configured parser instance.
 
     Raises:
-        ValueError: If the parser name is not recognized
+        ValueError:
+            If the parser name is not recognized.
 
     Examples:
         >>> parser = get_parser('docx')
@@ -48,17 +53,19 @@ def get_parser(parser_name: str, **kwargs) -> BaseParser:
 
 
 def detect_parser(file_path: str) -> BaseParser:
-    """
-    Automatically detect and return the appropriate parser for a file based on its extension.
+    """Automatically detect and return the appropriate parser for a file based on its extension.
 
     Args:
-        file_path: Path to the file
+        file_path (str):
+            Path to the file.
 
     Returns:
-        Appropriate parser instance for the file
+        (BaseParser):
+            Appropriate parser instance for the file.
 
     Raises:
-        ValueError: If no parser supports the file extension
+        ValueError:
+            If no parser supports the file extension.
 
     Examples:
         >>> parser = detect_parser('document.docx')
@@ -80,7 +87,12 @@ def detect_parser(file_path: str) -> BaseParser:
 
 
 def _get_all_extensions():
-    """Get all supported extensions from all parsers."""
+    """Get all supported extensions from all parsers.
+
+    Returns:
+        (list):
+            List of supported file extensions.
+    """
     extensions = []
     test_extensions = [".docx", ".html", ".htm", ".tex", ".latex"]
     for ext in test_extensions:
