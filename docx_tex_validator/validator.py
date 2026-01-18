@@ -279,7 +279,10 @@ with: "Document structure received and ready for validation."
             logger.debug("=" * 80)
             logger.debug("Backend: %s", self.backend.name)
             logger.debug("Model: %s", self.backend.model_name)
-            logger.debug("Agent output_type: %s", getattr(self.agent, '_output_type', 'unknown'))
+            # Try to get output_type but don't fail if it's not accessible
+            output_type = getattr(self.agent, '_output_type', None)
+            if output_type is not None:
+                logger.debug("Agent output_type: %s", output_type)
             logger.debug("Prompt length: %d characters", len(context_prompt))
             logger.debug("Prompt:\n%s", context_prompt)
             logger.debug("-" * 80)
@@ -311,10 +314,11 @@ with: "Document structure received and ready for validation."
             if isinstance(e, ModelHTTPError):
                 logger.error(
                     f"HTTP Error Details - Status Code: {e.status_code}, "
-                    f"Model: {e.model_name if hasattr(e, 'model_name') else 'unknown'}"
+                    f"Model: {getattr(e, 'model_name', 'unknown')}"
                 )
-                if e.body is not None:
-                    logger.error(f"Response Body: {e.body}")
+                body = getattr(e, 'body', None)
+                if body is not None:
+                    logger.error(f"Response Body: {body}")
             
             # Log the full traceback for debugging
             logger.debug("Full traceback:", exc_info=True)
