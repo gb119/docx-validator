@@ -4,6 +4,7 @@ OpenAI-compatible backend for AI model interactions.
 Supports OpenAI API and OpenAI-compatible endpoints like GitHub Models.
 """
 
+import logging
 import os
 from typing import Optional
 
@@ -11,6 +12,9 @@ from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIChatModel
 
 from .base import BaseBackend
+
+# Set up module logger
+logger = logging.getLogger(__name__)
 
 
 class OpenAIBackend(BaseBackend):
@@ -43,7 +47,7 @@ class OpenAIBackend(BaseBackend):
 
     def __init__(
         self,
-        model_name: str = "gpt-4o-mini",
+        model_name: str = "gpt-5-turbo",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         **kwargs,
@@ -101,10 +105,18 @@ class OpenAIBackend(BaseBackend):
             (Any):
                 AgentRunResult containing the response and message history.
         """
+        logger.debug("Backend run_sync called with model: %s", self.model_name)
+        
         if message_history:
             response = agent.run_sync(prompt, message_history=message_history)
         else:
             response = agent.run_sync(prompt)
+        
+        # Log HTTP-related information if available
+        # pydantic-ai abstracts the HTTP layer, but we can log what we have access to
+        if hasattr(response, 'metadata') and response.metadata:
+            logger.debug("HTTP/API Response metadata: %s", response.metadata)
+        
         return response
 
     @property

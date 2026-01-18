@@ -130,7 +130,7 @@ class DocxValidator:
     def __init__(
         self,
         backend: str = "openai",
-        model_name: str = "gpt-4o-mini",
+        model_name: str = "gpt-5-turbo",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         parser: Optional[str] = None,
@@ -269,8 +269,25 @@ with: "Document structure received and ready for validation."
 """
 
         try:
+            # Log the prompt at debug level
+            logger.debug("=" * 80)
+            logger.debug("LLM REQUEST - Document Context Setup")
+            logger.debug("=" * 80)
+            logger.debug("Prompt:\n%s", context_prompt)
+            logger.debug("-" * 80)
+            
             # Run the agent to establish context
             response = self.backend.run_sync(self.agent, context_prompt)
+            
+            # Log the response at debug level
+            logger.debug("Response received")
+            logger.debug("Response data: %s", str(response.data))
+            if hasattr(response, 'usage') and response.usage():
+                logger.debug("Token usage: %s", response.usage())
+            if hasattr(response, 'metadata') and response.metadata:
+                logger.debug("Response metadata: %s", response.metadata)
+            logger.debug("=" * 80)
+            
             # Return the message history from this interaction
             return response.all_messages()
         except Exception as e:
@@ -330,9 +347,26 @@ Reasoning: Your explanation here
 """
 
         try:
+            # Log the prompt at debug level
+            logger.debug("=" * 80)
+            logger.debug("LLM REQUEST - Validation (with context)")
+            logger.debug("=" * 80)
+            logger.debug("Specification: %s", spec.name)
+            logger.debug("Prompt:\n%s", prompt)
+            logger.debug("-" * 80)
+            
             # Run the agent with message history for context
             response = self.backend.run_sync(self.agent, prompt, message_history=message_history)
             response_text = str(response.data)
+            
+            # Log the response at debug level
+            logger.debug("Response received")
+            logger.debug("Response data: %s", response_text)
+            if hasattr(response, 'usage') and response.usage():
+                logger.debug("Token usage: %s", response.usage())
+            if hasattr(response, 'metadata') and response.metadata:
+                logger.debug("Response metadata: %s", response.metadata)
+            logger.debug("=" * 80)
 
             # Parse the response
             passed = (
@@ -417,9 +451,26 @@ Reasoning: Your explanation here
 """
 
         try:
+            # Log the prompt at debug level
+            logger.debug("=" * 80)
+            logger.debug("LLM REQUEST - Validation (legacy method)")
+            logger.debug("=" * 80)
+            logger.debug("Specification: %s", spec.name)
+            logger.debug("Prompt:\n%s", prompt)
+            logger.debug("-" * 80)
+            
             # Run the agent synchronously using the backend
             response = self.backend.run_sync(self.agent, prompt)
             response_text = str(response.data)
+            
+            # Log the response at debug level
+            logger.debug("Response received")
+            logger.debug("Response data: %s", response_text)
+            if hasattr(response, 'usage') and response.usage():
+                logger.debug("Token usage: %s", response.usage())
+            if hasattr(response, 'metadata') and response.metadata:
+                logger.debug("Response metadata: %s", response.metadata)
+            logger.debug("=" * 80)
 
             # Parse the response
             passed = (
