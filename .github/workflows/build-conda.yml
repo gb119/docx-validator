@@ -44,7 +44,7 @@ jobs:
           # Extract version from __init__.py
           VERSION=$(python -c "import sys; \
             sys.path.insert(0, '.'); \
-            from docx_validator import __version__; \
+            from docx_tex_validator import __version__; \
             print(__version__)")
           
           # Create conda recipe with metadata
@@ -53,7 +53,7 @@ jobs:
           # is configured in the repository settings with permissions to upload
           # to the phygbu channel on anaconda.org
           cat > conda-recipe/meta.yaml << EOF
-          {% set name = "docx-validator" %}
+          {% set name = "docx-tex-validator" %}
           {% set version = "$VERSION" %}
 
           package:
@@ -83,20 +83,20 @@ jobs:
 
           test:
             imports:
-              - docx_validator
+              - docx_tex_validator
             commands:
-              - docx-validator --help
+              - doc_validator --help
 
           about:
-            home: https://github.com/gb119/docx-validator
+            home: https://github.com/gb119/docx-tex-validator
             license: MIT
             license_file: LICENSE
             summary: A Python library and CLI tool that uses LLMs to validate Microsoft Word .docx files
             description: |
               A Python library and CLI tool that uses LLMs to validate Microsoft Word .docx files
               against specification requirements using GitHub models and pydantic-ai.
-            doc_url: https://github.com/gb119/docx-validator
-            dev_url: https://github.com/gb119/docx-validator
+            doc_url: https://github.com/gb119/docx-tex-validator
+            dev_url: https://github.com/gb119/docx-tex-validator
 
           extra:
             recipe-maintainers:
