@@ -33,5 +33,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: github-models-test-results
-          path: tests/github_models_test_results.json
+          path: |
+            tests/github_models_test_results.json
+            tests/github_models_test.log
           if-no-files-found: warn
