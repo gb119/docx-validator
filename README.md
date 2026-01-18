@@ -1,8 +1,8 @@
-# docx-validator
+# docx-tex-validator
 
 A Python library and command-line tool that uses LLMs to validate documents against specification requirements. Supports multiple document formats (DOCX, HTML, LaTeX) and multiple AI backends including OpenAI, GitHub Models, and NebulaOne.
 
-📚 **[Read the Documentation](https://gb119.github.io/docx-validator/)**
+📚 **[Read the Documentation](https://gb119.github.io/docx-tex-validator/)**
 
 ## Features
 
@@ -20,21 +20,21 @@ A Python library and command-line tool that uses LLMs to validate documents agai
 ### From PyPI (once published)
 
 ```bash
-pip install docx-validator
+pip install docx-tex-validator
 ```
 
 ### From Source
 
 ```bash
-git clone https://github.com/gb119/docx-validator.git
-cd docx-validator
+git clone https://github.com/gb119/docx-tex-validator.git
+cd docx-tex-validator
 pip install -e .
 ```
 
 ### Using Conda (once published)
 
 ```bash
-conda install -c phygbu docx-validator
+conda install -c phygbu docx-tex-validator
 ```
 
 ## Quick Start
@@ -44,21 +44,21 @@ conda install -c phygbu docx-validator
 1. **Create a specification file:**
 
 ```bash
-docx-validator init-spec specifications.json
+doc_validator init-spec specifications.json
 ```
 
 2. **Validate a document (using default OpenAI backend):**
 
 ```bash
 export OPENAI_API_KEY="your_openai_api_key"
-docx-validator validate document.docx --spec-file specifications.json
+doc_validator validate document.docx --spec-file specifications.json
 ```
 
 3. **Use GitHub Models:**
 
 ```bash
 export GITHUB_TOKEN="your_github_token"
-docx-validator validate document.docx -b github -s specifications.json
+doc_validator validate document.docx -b github -s specifications.json
 ```
 
 4. **Use NebulaOne:**
@@ -66,13 +66,13 @@ docx-validator validate document.docx -b github -s specifications.json
 ```bash
 export NEBULAONE_API_KEY="your_nebulaone_api_key"
 export NEBULAONE_BASE_URL="https://api.nebulaone.example"
-docx-validator validate document.docx -b nebulaone -m nebula-1 -s specifications.json
+doc_validator validate document.docx -b nebulaone -m nebula-1 -s specifications.json
 ```
 
 5. **Use inline specifications:**
 
 ```bash
-docx-validator validate document.docx \
+doc_validator validate document.docx \
   -r "Has Title:Document must have a title in metadata" \
   -r "Has Author:Document must have an author"
 ```
@@ -80,7 +80,7 @@ docx-validator validate document.docx \
 6. **Save results to a file:**
 
 ```bash
-docx-validator validate document.docx -s specs.json -o results.json -v
+doc_validator validate document.docx -s specs.json -o results.json -v
 ```
 
 ### Python Library Usage
@@ -88,7 +88,7 @@ docx-validator validate document.docx -s specs.json -o results.json -v
 #### Using OpenAI (default)
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Create validator with OpenAI backend (default)
 validator = DocxValidator(
@@ -125,7 +125,7 @@ for result in report.results:
 #### Using GitHub Models
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Create validator with GitHub Models backend
 validator = DocxValidator(
@@ -140,7 +140,7 @@ validator = DocxValidator(
 #### Using NebulaOne
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Create validator with NebulaOne backend
 validator = DocxValidator(
@@ -157,7 +157,7 @@ validator = DocxValidator(
 
 ### Supported Backends
 
-docx-validator supports multiple AI backends:
+docx-tex-validator supports multiple AI backends:
 
 1. **OpenAI** (`backend="openai"`): Direct OpenAI API access
 2. **GitHub Models** (`backend="github"`): GitHub's AI model service
@@ -248,7 +248,7 @@ See `examples/README.md` for detailed information about each specification file.
 
 ## Multiple Document Format Support
 
-docx-validator now supports multiple document formats beyond just DOCX:
+docx-tex-validator now supports multiple document formats beyond just DOCX:
 
 - **DOCX** (`.docx`) - Microsoft Word documents
 - **HTML** (`.html`, `.htm`) - HTML web pages  
@@ -258,16 +258,16 @@ The parser is automatically detected based on the file extension:
 
 ```bash
 # Validate HTML document
-docx-validator validate document.html -s specs.json
+doc_validator validate document.html -s specs.json
 
 # Validate LaTeX document
-docx-validator validate document.tex -s specs.json
+doc_validator validate document.tex -s specs.json
 ```
 
 Or explicitly specify the parser:
 
 ```bash
-docx-validator validate document.html -p html -s specs.json
+doc_validator validate document.html -p html -s specs.json
 ```
 
 See `examples/FORMAT_SUPPORT.md` for detailed documentation on multi-format support, including:
@@ -296,8 +296,8 @@ The validation report includes:
 ### Setup Development Environment
 
 ```bash
-git clone https://github.com/gb119/docx-validator.git
-cd docx-validator
+git clone https://github.com/gb119/docx-tex-validator.git
+cd docx-tex-validator
 pip install -e ".[dev]"
 ```
 
