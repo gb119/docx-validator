@@ -121,21 +121,33 @@ class LaTeXParser(BaseParser):
         figures = []
         for figure in soup.find_all("figure"):
             caption_cmd = figure.find("caption")
-            caption = self._clean_latex(str(caption_cmd.args[0])) if caption_cmd and caption_cmd.args else ""
-            
+            if caption_cmd and caption_cmd.args:
+                caption = self._clean_latex(str(caption_cmd.args[0]))
+            else:
+                caption = ""
+
             label_cmd = figure.find("label")
-            label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
-            
+            if label_cmd and label_cmd.args:
+                label = str(label_cmd.args[0]).strip("{}")
+            else:
+                label = ""
+
             figures.append({"caption": caption, "label": label})
 
         tables = []
         for table in soup.find_all("table"):
             caption_cmd = table.find("caption")
-            caption = self._clean_latex(str(caption_cmd.args[0])) if caption_cmd and caption_cmd.args else ""
-            
+            if caption_cmd and caption_cmd.args:
+                caption = self._clean_latex(str(caption_cmd.args[0]))
+            else:
+                caption = ""
+
             label_cmd = table.find("label")
-            label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
-            
+            if label_cmd and label_cmd.args:
+                label = str(label_cmd.args[0]).strip("{}")
+            else:
+                label = ""
+
             tables.append({"caption": caption, "label": label})
 
         # Extract equations
@@ -143,7 +155,7 @@ class LaTeXParser(BaseParser):
         for equation in soup.find_all("equation"):
             label_cmd = equation.find("label")
             label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
-            
+
             # Get equation content (text without the label command)
             eq_str = str(equation)
             # Remove begin/end tags and label command
@@ -152,7 +164,7 @@ class LaTeXParser(BaseParser):
             eq_content = re.sub(r"\\end\{equation\}", "", eq_content)
             eq_content = re.sub(r"\\label\{.*?\}", "", eq_content)
             eq_content = eq_content.strip()
-            
+
             equations.append({"content": eq_content, "label": label})
 
         # Extract bibliography information
