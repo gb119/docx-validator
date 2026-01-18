@@ -1,12 +1,12 @@
 API Reference
 =============
 
-This page contains the API reference for docx-validator.
+This page contains the API reference for docx-tex-validator.
 
 Core Validator
 --------------
 
-.. automodule:: docx_validator.validator
+.. automodule:: docx_tex_validator.validator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -14,7 +14,7 @@ Core Validator
 Document Parser
 ---------------
 
-.. automodule:: docx_validator.parser
+.. automodule:: docx_tex_validator.parser
    :members:
    :undoc-members:
    :show-inheritance:
@@ -22,7 +22,7 @@ Document Parser
 Command-Line Interface
 ----------------------
 
-.. automodule:: docx_validator.cli
+.. automodule:: docx_tex_validator.cli
    :members:
    :undoc-members:
    :show-inheritance:
@@ -33,7 +33,7 @@ Models and Classes
 ValidationSpec
 ~~~~~~~~~~~~~~
 
-.. autoclass:: docx_validator.validator.ValidationSpec
+.. autoclass:: docx_tex_validator.validator.ValidationSpec
    :members:
    :undoc-members:
    :show-inheritance:
@@ -41,7 +41,7 @@ ValidationSpec
 ValidationResult
 ~~~~~~~~~~~~~~~~
 
-.. autoclass:: docx_validator.validator.ValidationResult
+.. autoclass:: docx_tex_validator.validator.ValidationResult
    :members:
    :undoc-members:
    :show-inheritance:
@@ -49,7 +49,7 @@ ValidationResult
 ValidationReport
 ~~~~~~~~~~~~~~~~
 
-.. autoclass:: docx_validator.validator.ValidationReport
+.. autoclass:: docx_tex_validator.validator.ValidationReport
    :members:
    :undoc-members:
    :show-inheritance:
@@ -57,7 +57,7 @@ ValidationReport
 DocxValidator
 ~~~~~~~~~~~~~
 
-.. autoclass:: docx_validator.validator.DocxValidator
+.. autoclass:: docx_tex_validator.validator.DocxValidator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -65,7 +65,7 @@ DocxValidator
 DocxParser
 ~~~~~~~~~~
 
-.. autoclass:: docx_validator.parser.DocxParser
+.. autoclass:: docx_tex_validator.parser.DocxParser
    :members:
    :undoc-members:
    :show-inheritance:

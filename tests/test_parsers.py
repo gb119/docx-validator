@@ -7,7 +7,7 @@ import tempfile
 
 import pytest
 
-from docx_validator.parsers import (
+from docx_tex_validator.parsers import (
     DocxParser,
     HTMLParser,
     LaTeXParser,
@@ -235,7 +235,7 @@ def test_validator_with_html_parser():
     """Test that validator can be initialized with HTML parser."""
     import os
 
-    from docx_validator import DocxValidator
+    from docx_tex_validator import DocxValidator
 
     os.environ["OPENAI_API_KEY"] = "test_key"
 
@@ -251,7 +251,7 @@ def test_validator_with_latex_parser():
     """Test that validator can be initialized with LaTeX parser."""
     import os
 
-    from docx_validator import DocxValidator
+    from docx_tex_validator import DocxValidator
 
     os.environ["OPENAI_API_KEY"] = "test_key"
 
@@ -268,7 +268,7 @@ def test_validator_auto_detect_parser():
     import os
     from unittest.mock import Mock, patch
 
-    from docx_validator import DocxValidator, ValidationSpec
+    from docx_tex_validator import DocxValidator, ValidationSpec
 
     os.environ["OPENAI_API_KEY"] = "test_key"
 
@@ -303,12 +303,12 @@ def test_validator_auto_detect_parser():
         )
 
         # Test HTML file detection
-        with patch("docx_validator.validator.detect_parser", return_value=mock_html_parser):
+        with patch("docx_tex_validator.validator.detect_parser", return_value=mock_html_parser):
             report = validator.validate("test.html", specs)
             assert report.file_path == "test.html"
 
         # Test LaTeX file detection
-        with patch("docx_validator.validator.detect_parser", return_value=mock_latex_parser):
+        with patch("docx_tex_validator.validator.detect_parser", return_value=mock_latex_parser):
             report = validator.validate("test.tex", specs)
             assert report.file_path == "test.tex"
 

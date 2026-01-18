@@ -4,11 +4,11 @@ Installation
 From PyPI
 ---------
 
-Once published, you can install docx-validator from PyPI:
+Once published, you can install docx-tex-validator from PyPI:
 
 .. code-block:: bash
 
-   pip install docx-validator
+   pip install docx-tex-validator
 
 From Source
 -----------
@@ -17,8 +17,8 @@ To install from source:
 
 .. code-block:: bash
 
-   git clone https://github.com/gb119/docx-validator.git
-   cd docx-validator
+   git clone https://github.com/gb119/docx-tex-validator.git
+   cd docx-tex-validator
    pip install -e .
 
 For development, install with the development dependencies:
@@ -40,13 +40,13 @@ Once published to the phygbu channel, you can install using conda:
 
 .. code-block:: bash
 
-   conda install -c phygbu docx-validator
+   conda install -c phygbu docx-tex-validator
 
 Or with mamba for faster installation:
 
 .. code-block:: bash
 
-   mamba install -c phygbu docx-validator
+   mamba install -c phygbu docx-tex-validator
 
 Requirements
 ------------
@@ -63,7 +63,7 @@ Configuration
 GitHub Models API
 ~~~~~~~~~~~~~~~~~
 
-By default, ``docx-validator`` uses GitHub Models for LLM inference. You need to:
+By default, ``docx-tex-validator`` uses GitHub Models for LLM inference. You need to:
 
 1. Get a GitHub token with access to GitHub Models
 2. Set it as an environment variable:
@@ -86,7 +86,7 @@ Or by passing parameters when creating the validator:
 
 .. code-block:: python
 
-   from docx_validator import DocxValidator
+   from docx_tex_validator import DocxValidator
 
    validator = DocxValidator(
        model_name="gpt-4",

@@ -1,1 +1,1 @@
-"""Tests for docx-validator."""
+"""Tests for docx-tex-validator."""

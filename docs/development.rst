@@ -8,8 +8,8 @@ Clone the repository and install development dependencies:
 
 .. code-block:: bash
 
-   git clone https://github.com/gb119/docx-validator.git
-   cd docx-validator
+   git clone https://github.com/gb119/docx-tex-validator.git
+   cd docx-tex-validator
    pip install -e ".[dev]"
 
 This installs the package in editable mode with development tools including:
@@ -31,7 +31,7 @@ Run tests with coverage:
 
 .. code-block:: bash
 
-   pytest --cov=docx_validator --cov-report=html
+   pytest --cov=docx_tex_validator --cov-report=html
 
 View coverage report:
 
@@ -191,7 +191,7 @@ Version Bumping
 Update version in:
 
 1. ``pyproject.toml`` - ``version`` field
-2. ``docx_validator/__init__.py`` - ``__version__`` variable
+2. ``docx_tex_validator/__init__.py`` - ``__version__`` variable
 3. ``docs/conf.py`` - ``release`` and ``version`` variables
 
 Project Structure
@@ -199,7 +199,7 @@ Project Structure
 
 .. code-block:: text
 
-   docx-validator/
+   docx-tex-validator/
    ├── .github/
    │   └── workflows/          # GitHub Actions workflows
    │       ├── build-conda.yml
@@ -209,7 +209,7 @@ Project Structure
    │   ├── conf.py
    │   ├── index.rst
    │   └── ...
-   ├── docx_validator/         # Main package
+   ├── docx_tex_validator/     # Main package
    │   ├── __init__.py
    │   ├── cli.py             # Command-line interface
    │   ├── parser.py          # Document parser

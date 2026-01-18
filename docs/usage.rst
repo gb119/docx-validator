@@ -44,7 +44,7 @@ Create specifications in Python code:
 
 .. code-block:: python
 
-   from docx_validator import ValidationSpec
+   from docx_tex_validator import ValidationSpec
 
    specs = [
        ValidationSpec(
@@ -69,7 +69,7 @@ Report Structure
 
 .. code-block:: python
 
-   from docx_validator import ValidationReport
+   from docx_tex_validator import ValidationReport
 
    # After running validation
    report = validator.validate("document.docx", specs)
@@ -107,7 +107,7 @@ Validate a document against specifications:
 
 .. code-block:: bash
 
-   docx-validator validate DOCUMENT [OPTIONS]
+   doc_validator validate DOCUMENT [OPTIONS]
 
 Options:
 
@@ -122,18 +122,18 @@ Examples:
 .. code-block:: bash
 
    # Validate with specification file
-   docx-validator validate doc.docx -s specs.json
+   doc_validator validate doc.docx -s specs.json
 
    # Validate with inline requirements
-   docx-validator validate doc.docx \
+   doc_validator validate doc.docx \
      -r "Has Title:Document must have a title" \
      -r "Has Author:Document must have an author"
 
    # Save results and show verbose output
-   docx-validator validate doc.docx -s specs.json -o results.json -v
+   doc_validator validate doc.docx -s specs.json -o results.json -v
 
    # Use a different model
-   docx-validator validate doc.docx -s specs.json --model gpt-4
+   doc_validator validate doc.docx -s specs.json --model gpt-4
 
 init-spec Command
 ~~~~~~~~~~~~~~~~~
@@ -142,7 +142,7 @@ Create a template specification file:
 
 .. code-block:: bash
 
-   docx-validator init-spec OUTPUT_FILE
+   doc_validator init-spec OUTPUT_FILE
 
 This creates a JSON file with example specifications that you can customize.
 
@@ -150,7 +150,7 @@ Example:
 
 .. code-block:: bash
 
-   docx-validator init-spec my-specifications.json
+   doc_validator init-spec my-specifications.json
 
 Document Structure Analysis
 ---------------------------

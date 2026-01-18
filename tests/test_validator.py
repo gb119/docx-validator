@@ -1,11 +1,11 @@
 """
-Basic tests for the docx-validator package.
+Basic tests for the docx-tex-validator package.
 """
 
 import pytest
 
-from docx_validator import DocxValidator, ValidationResult, ValidationSpec
-from docx_validator.parser import DocxParser
+from docx_tex_validator import DocxValidator, ValidationResult, ValidationSpec
+from docx_tex_validator.parser import DocxParser
 
 
 def test_validation_spec_creation():
@@ -143,7 +143,7 @@ def test_validator_initialization():
 
 def test_backend_registry():
     """Test that all backends are registered correctly."""
-    from docx_validator.backends import BACKENDS
+    from docx_tex_validator.backends import BACKENDS
 
     assert "openai" in BACKENDS
     assert "github" in BACKENDS
@@ -154,7 +154,7 @@ def test_get_backend():
     """Test the get_backend function."""
     import os
 
-    from docx_validator.backends import get_backend
+    from docx_tex_validator.backends import get_backend
 
     os.environ["OPENAI_API_KEY"] = "test_key"
 
@@ -179,7 +179,7 @@ def test_get_backend():
 
 def test_validation_report_weighted_scores():
     """Test ValidationReport calculates weighted scores correctly."""
-    from docx_validator import ValidationReport, ValidationResult
+    from docx_tex_validator import ValidationReport, ValidationResult
 
     # Create results for a report with mixed pass/fail
     results = [
@@ -210,7 +210,7 @@ def test_validation_report_weighted_scores():
 
 def test_validation_report_all_tests_equal_weight():
     """Test that equal weights give same result as count-based scoring."""
-    from docx_validator import ValidationReport, ValidationResult
+    from docx_tex_validator import ValidationReport, ValidationResult
 
     # All tests have score 1.0 (default)
     results = [
@@ -245,7 +245,7 @@ def test_validation_report_negative_scores():
 
     This scenario might occur if users assign penalty scores that cancel out positive scores.
     """
-    from docx_validator import ValidationReport, ValidationResult
+    from docx_tex_validator import ValidationReport, ValidationResult
 
     # Test with negative score for penalty that cancels out positive score
     results = [
@@ -277,7 +277,7 @@ def test_validation_report_negative_total():
     This edge case occurs when the sum of negative scores exceeds positive scores.
     The score defaults to 0.0 as the calculation would be meaningless.
     """
-    from docx_validator import ValidationReport, ValidationResult
+    from docx_tex_validator import ValidationReport, ValidationResult
 
     results = [
         ValidationResult(spec_name="Test 1", passed=True, confidence=1.0),
@@ -433,7 +433,7 @@ def test_context_based_validation_efficiency():
         mock_parser = Mock()
         mock_parser.parse = Mock(return_value=doc_structure)
 
-        with patch("docx_validator.validator.detect_parser", return_value=mock_parser):
+        with patch("docx_tex_validator.validator.detect_parser", return_value=mock_parser):
             # Run validation (this should use the new context-based approach)
             report = validator.validate("test.docx", specs)
 

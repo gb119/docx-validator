@@ -1,5 +1,5 @@
 """
-docx-validator: A Python library for validating Microsoft Word .docx files using LLMs.
+docx-tex-validator: A Python library for validating documents (DOCX, HTML, LaTeX) using LLMs.
 """
 
 from .backends import (

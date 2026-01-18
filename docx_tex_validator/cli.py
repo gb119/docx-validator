@@ -1,5 +1,5 @@
 """
-Command-line interface for docx-validator.
+Command-line interface for docx-tex-validator.
 """
 
 import json
@@ -16,7 +16,7 @@ from .validator import DocxValidator, ValidationSpec
 @click.version_option(version=__version__)
 def cli():
     """
-    docx-validator - Validate documents using LLM analysis.
+    doc_validator - Validate documents using LLM analysis.
 
     This tool uses AI models and pydantic-ai to check if documents
     conform to specification requirements.
@@ -102,16 +102,16 @@ def validate(
 
     Example:
         # Use default OpenAI backend with auto-detected parser
-        docx-validator validate document.docx -s specs.json
+        doc_validator validate document.docx -s specs.json
 
         # Validate HTML document with GitHub Models
-        docx-validator validate document.html -b github -s specs.json
+        doc_validator validate document.html -b github -s specs.json
 
         # Validate LaTeX document with NebulaOne
-        docx-validator validate document.tex -b nebulaone -m nebula-1 -s specs.json
+        doc_validator validate document.tex -b nebulaone -m nebula-1 -s specs.json
 
         # With inline specifications
-        docx-validator validate document.docx -r "Has Title:Document must have a title"
+        doc_validator validate document.docx -r "Has Title:Document must have a title"
     """
     # Load specifications
     specifications = _load_specifications(spec_file, spec)
@@ -174,7 +174,7 @@ def init_spec(output_file: str):
     OUTPUT_FILE: Path where the specification file will be created
 
     Example:
-        docx-validator init-spec specifications.json
+        doc_validator init-spec specifications.json
     """
     sample_specs = [
         {

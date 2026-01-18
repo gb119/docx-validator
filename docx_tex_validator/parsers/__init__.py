@@ -1,5 +1,5 @@
 """
-Document parsers for docx-validator.
+Document parsers for docx-tex-validator.
 
 This module provides different parser implementations for various document formats,
 allowing flexibility in choosing which document type to validate.

@@ -11,7 +11,7 @@ Create a template specification file:
 
 .. code-block:: bash
 
-   docx-validator init-spec specifications.json
+   doc_validator init-spec specifications.json
 
 This creates a JSON file with example specifications that you can customize.
 
@@ -23,7 +23,7 @@ Validate a document against a specification file:
 .. code-block:: bash
 
    export GITHUB_TOKEN="your_github_token"
-   docx-validator validate document.docx --spec-file specifications.json
+   doc_validator validate document.docx --spec-file specifications.json
 
 Use Inline Specifications
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,7 +32,7 @@ You can also provide specifications directly on the command line:
 
 .. code-block:: bash
 
-   docx-validator validate document.docx \
+   doc_validator validate document.docx \
      -r "Has Title:Document must have a title in metadata" \
      -r "Has Author:Document must have an author"
 
@@ -43,7 +43,7 @@ Save validation results to a JSON file:
 
 .. code-block:: bash
 
-   docx-validator validate document.docx -s specs.json -o results.json -v
+   doc_validator validate document.docx -s specs.json -o results.json -v
 
 Python Library Usage
 --------------------
@@ -53,7 +53,7 @@ Basic Example
 
 .. code-block:: python
 
-   from docx_validator import DocxValidator, ValidationSpec
+   from docx_tex_validator import DocxValidator, ValidationSpec
 
    # Create validator (uses GITHUB_TOKEN environment variable)
    validator = DocxValidator(model_name="gpt-4o-mini")
@@ -89,7 +89,7 @@ Use a custom OpenAI-compatible model:
 
 .. code-block:: python
 
-   from docx_validator import DocxValidator
+   from docx_tex_validator import DocxValidator
    import os
 
    # Set environment variables for custom endpoint

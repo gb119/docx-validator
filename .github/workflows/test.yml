@@ -26,7 +26,7 @@ jobs:
 
       - name: Run tests with pytest
         run: |
-          pytest --cov=docx_validator --cov-report=term-missing --cov-report=xml
+          pytest --cov=docx_tex_validator --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage reports
         uses: codecov/codecov-action@v4

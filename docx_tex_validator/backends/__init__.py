@@ -1,5 +1,5 @@
 """
-AI model backends for docx-validator.
+AI model backends for docx-tex-validator.
 
 This module provides different backend implementations for AI model interactions,
 allowing flexibility in choosing which AI service to use.
