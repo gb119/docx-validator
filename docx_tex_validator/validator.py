@@ -258,6 +258,8 @@ class DocxValidator:
                 Message history list that can be passed to subsequent validation calls.
         """
         # Prepare the context setup prompt
+        # Note: We ask for a simple confirmation to ensure the LLM processes
+        # the document structure. The agent expects a string response by default.
         context_prompt = f"""
 I will provide you with a document structure to analyze. After I provide the document, \
 I will ask you a series of validation questions about it. Please analyze and remember \
@@ -271,10 +273,14 @@ with: "Document structure received and ready for validation."
 """
 
         try:
-            # Log the prompt at debug level
+            # Log diagnostic information before making the request
             logger.debug("=" * 80)
             logger.debug("LLM REQUEST - Document Context Setup")
             logger.debug("=" * 80)
+            logger.debug("Backend: %s", self.backend.name)
+            logger.debug("Model: %s", self.backend.model_name)
+            logger.debug("Agent output_type: %s", getattr(self.agent, '_output_type', 'unknown'))
+            logger.debug("Prompt length: %d characters", len(context_prompt))
             logger.debug("Prompt:\n%s", context_prompt)
             logger.debug("-" * 80)
             
