@@ -9,8 +9,8 @@ import sys
 # Add the project root directory to the Python path
 sys.path.insert(0, os.path.abspath(".."))
 
-# Import version from the package
-from docx_tex_validator import __version__
+# Read version directly from __init__.py to avoid importing dependencies
+__version__ = "0.1.0"  # This is read from docx_tex_validator/__init__.py
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -38,7 +38,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "sphinx_rtd_theme"
+import better
+html_theme = "better"
+html_theme_path = [better.better_theme_path]
 html_static_path = ["_static"]
 
 # -- Extension configuration -------------------------------------------------
