@@ -235,7 +235,7 @@ def _load_specifications(spec_file: Optional[str], inline_specs: tuple) -> List[
     """Load specifications from file and/or inline arguments.
 
     Args:
-        spec_file (str):
+        spec_file (Optional[str]):
             Path to JSON file containing specifications.
         inline_specs (tuple):
             Tuple of inline specification strings.

@@ -272,10 +272,9 @@ with: "Document structure received and ready for validation."
                 Message history containing the document context.
 
         Returns:
-            (ValidationResult):
-                ValidationResult for this specification.
-            (List[Any]):
-                Updated message history.
+            (Tuple[ValidationResult, List[Any]]):
+                A tuple containing the ValidationResult for this specification
+                and the updated message history.
         """
         # Prepare the validation prompt (without repeating the document)
         prompt = f"""
