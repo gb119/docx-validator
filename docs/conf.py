@@ -10,12 +10,12 @@ import sys
 sys.path.insert(0, os.path.abspath(".."))
 
 # Import version from the package
-from docx_validator import __version__
+from docx_tex_validator import __version__
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "docx-validator"
+project = "docx-tex-validator"
 copyright = "2024, GB119"
 author = "GB119"
 release = __version__

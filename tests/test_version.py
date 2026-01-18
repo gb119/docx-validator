@@ -8,7 +8,7 @@ from pathlib import Path
 
 def _get_version_from_init():
     """Helper function to extract version from __init__.py."""
-    init_path = Path(__file__).parent.parent / "docx_validator" / "__init__.py"
+    init_path = Path(__file__).parent.parent / "docx_tex_validator" / "__init__.py"
     init_content = init_path.read_text()
 
     # Extract __version__ value
@@ -39,13 +39,13 @@ def test_version_format():
 def test_cli_uses_package_version():
     """Test that CLI imports version from the package."""
     # Read cli.py to check it imports __version__
-    cli_path = Path(__file__).parent.parent / "docx_validator" / "cli.py"
+    cli_path = Path(__file__).parent.parent / "docx_tex_validator" / "cli.py"
     cli_content = cli_path.read_text()
 
     # Check that cli.py imports __version__
     assert (
         "from . import __version__" in cli_content
-        or "from docx_validator import __version__" in cli_content
+        or "from docx_tex_validator import __version__" in cli_content
     )
     # Check that cli.py uses __version__ instead of a hardcoded string
     assert "@click.version_option(version=__version__)" in cli_content
@@ -57,7 +57,7 @@ def test_docs_conf_imports_version():
     conf_content = docs_conf_path.read_text()
 
     # Check that conf.py imports __version__
-    assert "from docx_validator import __version__" in conf_content
+    assert "from docx_tex_validator import __version__" in conf_content
     # Check that it uses __version__ for release and version
     assert "release = __version__" in conf_content
     assert "version = __version__" in conf_content
@@ -87,9 +87,9 @@ def test_pyproject_uses_dynamic_version():
 
     # Check that setuptools.dynamic configuration exists
     assert "[tool.setuptools.dynamic]" in pyproject_content
-    setuptools_dynamic_pattern = r"version\s*=\s*\{.*attr.*docx_validator\.__version__.*\}"
+    setuptools_dynamic_pattern = r"version\s*=\s*\{.*attr.*docx_tex_validator\.__version__.*\}"
     assert re.search(setuptools_dynamic_pattern, pyproject_content), (
-        "setuptools.dynamic should configure version from docx_validator.__version__"
+        "setuptools.dynamic should configure version from docx_tex_validator.__version__"
     )
 
 

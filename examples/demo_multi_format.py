@@ -9,7 +9,7 @@ Note: This demo uses mock backend to avoid requiring API keys.
 
 from unittest.mock import Mock
 
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Define format-agnostic specifications
 specs = [
@@ -82,7 +82,7 @@ print()
 print("3. Auto-detection demo...")
 print("-" * 70)
 
-from docx_validator.parsers import detect_parser
+from docx_tex_validator.parsers import detect_parser
 
 for file_path in ["examples/sample_document.html", "examples/sample_document.tex"]:
     parser = detect_parser(file_path)
@@ -100,5 +100,5 @@ print("  • Consistent API across all document formats")
 print()
 print("For actual validation with LLM, set API keys:")
 print("  export OPENAI_API_KEY=your_key")
-print("  docx-validator validate document.html -s specs.json")
+print("  doc_validator validate document.html -s specs.json")
 print("=" * 70)

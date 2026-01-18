@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "docx-validator"
+name = "docx-tex-validator"
 dynamic = ["version"]
-description = "A Python library and CLI tool that uses LLMs to validate documents (DOCX, HTML, LaTeX) against specification requirements"
+description = "A Python library and CLI tool that uses LLMs to validate documents (DOCX, HTML, LaTeX, TeX) against specification requirements"
 readme = "README.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
@@ -42,18 +42,18 @@ docs = [
 ]
 
 [project.scripts]
-docx-validator = "docx_validator.cli:main"
+doc_validator = "docx_tex_validator.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/gb119/docx-validator"
-Repository = "https://github.com/gb119/docx-validator"
+Homepage = "https://github.com/gb119/docx-tex-validator"
+Repository = "https://github.com/gb119/docx-tex-validator"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["docx_validator*"]
+include = ["docx_tex_validator*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "docx_validator.__version__"}
+version = {attr = "docx_tex_validator.__version__"}
 
 [tool.ruff]
 line-length = 100
