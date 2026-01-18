@@ -49,25 +49,21 @@ class HTMLParser(BaseParser):
         self.validate_file(file_path)
 
         try:
-            # Use BeautifulSoup for HTML parsing if available, otherwise basic parsing
-            try:
-                from bs4 import BeautifulSoup
-
-                has_bs4 = True
-            except ImportError:
-                has_bs4 = False
+            from bs4 import BeautifulSoup
 
             with open(file_path, "r", encoding="utf-8", errors="replace") as f:
                 content = f.read()
 
-            if has_bs4:
-                soup = BeautifulSoup(content, "html.parser")
-                structure = self._parse_with_beautifulsoup(file_path, soup, content)
-            else:
-                structure = self._parse_basic(file_path, content)
+            soup = BeautifulSoup(content, "html.parser")
+            structure = self._parse_with_beautifulsoup(file_path, soup, content)
 
             return structure
 
+        except ImportError as e:
+            raise ImportError(
+                "BeautifulSoup4 is required for HTML parsing. "
+                "Install it with: pip install beautifulsoup4"
+            ) from e
         except Exception as e:
             raise ValueError(f"Failed to parse HTML file: {e}") from e
 
@@ -147,49 +143,3 @@ class HTMLParser(BaseParser):
             "raw_content": raw_content,
         }
 
-    def _parse_basic(self, file_path: str, content: str) -> Dict[str, Any]:
-        """Basic HTML parsing without BeautifulSoup.
-
-        Args:
-            file_path (str):
-                Path to the HTML file.
-            content (str):
-                Raw HTML content.
-
-        Returns:
-            (Dict[str, Any]):
-                Dictionary containing parsed HTML structure.
-        """
-        import re
-
-        # Extract title
-        title_match = re.search(r"<title>(.*?)</title>", content, re.IGNORECASE | re.DOTALL)
-        title = title_match.group(1).strip() if title_match else ""
-
-        # Extract headings using regex
-        headings = []
-        for level in range(1, 7):
-            pattern = rf"<h{level}[^>]*>(.*?)</h{level}>"
-            for match in re.finditer(pattern, content, re.IGNORECASE | re.DOTALL):
-                text = re.sub(r"<[^>]+>", "", match.group(1)).strip()
-                headings.append({"level": level, "text": text, "tag": f"h{level}"})
-
-        # Extract paragraphs
-        paragraphs = []
-        pattern = r"<p[^>]*>(.*?)</p>"
-        for match in re.finditer(pattern, content, re.IGNORECASE | re.DOTALL):
-            text = re.sub(r"<[^>]+>", "", match.group(1)).strip()
-            if text:
-                paragraphs.append({"text": text})
-
-        return {
-            "file_path": str(file_path),
-            "document_type": "html",
-            "metadata": {"title": title},
-            "headings": headings,
-            "paragraphs": paragraphs,
-            "tables": [],
-            "lists": [],
-            "has_title": bool(title),
-            "raw_content": content,
-        }
