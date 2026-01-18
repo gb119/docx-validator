@@ -280,9 +280,14 @@ with: "Document structure received and ready for validation."
             logger.debug("Backend: %s", self.backend.name)
             logger.debug("Model: %s", self.backend.model_name)
             # Try to get output_type but don't fail if it's not accessible
-            output_type = getattr(self.agent, '_output_type', None)
-            if output_type is not None:
-                logger.debug("Agent output_type: %s", output_type)
+            # Note: _output_type is a private attribute and may change in future pydantic-ai versions
+            try:
+                output_type = getattr(self.agent, '_output_type', None)
+                if output_type is not None:
+                    logger.debug("Agent output_type: %s", output_type)
+            except Exception:
+                # Silently ignore if we can't access the output_type
+                pass
             logger.debug("Prompt length: %d characters", len(context_prompt))
             logger.debug("Prompt:\n%s", context_prompt)
             logger.debug("-" * 80)
@@ -306,6 +311,8 @@ with: "Document structure received and ready for validation."
             # This will trigger fallback to the legacy validation method
             
             # Log the exception type and basic message
+            # Note: We log the full message to help diagnose the issue
+            # If running in production, consider setting log level to WARNING to reduce verbosity
             logger.error(
                 f"Context setup failed with {type(e).__name__}: {str(e)}"
             )
@@ -318,9 +325,14 @@ with: "Document structure received and ready for validation."
                 )
                 body = getattr(e, 'body', None)
                 if body is not None:
-                    logger.error(f"Response Body: {body}")
+                    # Convert body to string and truncate if too long to avoid logging sensitive data
+                    body_str = str(body)
+                    max_body_length = 500
+                    if len(body_str) > max_body_length:
+                        body_str = body_str[:max_body_length] + "... (truncated)"
+                    logger.error(f"Response Body (first {max_body_length} chars): {body_str}")
             
-            # Log the full traceback for debugging
+            # Log the full traceback for debugging (only at DEBUG level to avoid log spam)
             logger.debug("Full traceback:", exc_info=True)
             
             # Provide user-friendly guidance
