@@ -1,6 +1,6 @@
 # Document Format Support
 
-The docx-validator now supports multiple document formats beyond just Microsoft Word DOCX files. The tool can validate HTML and LaTeX documents using the same specification files.
+The docx-tex-validator now supports multiple document formats beyond just Microsoft Word DOCX files. The tool can validate HTML and LaTeX documents using the same specification files.
 
 ## Supported Formats
 
@@ -20,13 +20,13 @@ By default, the validator automatically detects the document format from the fil
 
 ```bash
 # Validate a DOCX file
-docx-validator validate document.docx -s specs.json
+doc_validator validate document.docx -s specs.json
 
 # Validate an HTML file
-docx-validator validate document.html -s specs.json
+doc_validator validate document.html -s specs.json
 
 # Validate a LaTeX file
-docx-validator validate document.tex -s specs.json
+doc_validator validate document.tex -s specs.json
 ```
 
 ### Explicit Parser Selection
@@ -35,10 +35,10 @@ You can also explicitly specify which parser to use with the `-p` or `--parser` 
 
 ```bash
 # Force HTML parser
-docx-validator validate document.html -p html -s specs.json
+doc_validator validate document.html -p html -s specs.json
 
 # Force LaTeX parser
-docx-validator validate document.tex -p latex -s specs.json
+doc_validator validate document.tex -p latex -s specs.json
 ```
 
 ## Python API
@@ -46,7 +46,7 @@ docx-validator validate document.tex -p latex -s specs.json
 ### Using Specific Parsers
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Validate HTML document
 validator = DocxValidator(parser="html")
@@ -61,7 +61,7 @@ report = validator.validate("document.tex", specs)
 ### Auto-Detection
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Parser is auto-detected from file extension
 validator = DocxValidator()
@@ -78,7 +78,7 @@ report = validator.validate("document.tex", specs)   # Uses LaTeXParser
 You can also use the parsers directly to extract document structure without validation:
 
 ```python
-from docx_validator.parsers import HTMLParser, LaTeXParser, detect_parser
+from docx_tex_validator.parsers import HTMLParser, LaTeXParser, detect_parser
 
 # Use a specific parser
 html_parser = HTMLParser()
@@ -164,6 +164,6 @@ The parser architecture is designed to be extensible. To add support for new doc
 
 1. Create a new parser class that inherits from `BaseParser`
 2. Implement the `parse()` and `supports_extension()` methods
-3. Register the parser in `docx_validator/parsers/__init__.py`
+3. Register the parser in `docx_tex_validator/parsers/__init__.py`
 
 See the existing parsers for examples.

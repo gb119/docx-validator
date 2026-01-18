@@ -1,13 +1,13 @@
-# Backend Examples for docx-validator
+# Backend Examples for docx-tex-validator
 
-This directory contains examples of using different AI backends with docx-validator.
+This directory contains examples of using different AI backends with docx-tex-validator.
 
 ## Quick Examples
 
 ### Using OpenAI
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Create validator with OpenAI backend
 validator = DocxValidator(
@@ -30,7 +30,7 @@ print(f"Validation score: {report.score:.2%}")
 ### Using GitHub Models
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Create validator with GitHub Models backend
 validator = DocxValidator(
@@ -45,7 +45,7 @@ validator = DocxValidator(
 ### Using NebulaOne
 
 ```python
-from docx_validator import DocxValidator, ValidationSpec
+from docx_tex_validator import DocxValidator, ValidationSpec
 
 # Create validator with NebulaOne backend
 validator = DocxValidator(
@@ -63,20 +63,20 @@ validator = DocxValidator(
 ### OpenAI
 ```bash
 export OPENAI_API_KEY="your_openai_api_key"
-docx-validator validate document.docx -s specs.json
+doc_validator validate document.docx -s specs.json
 ```
 
 ### GitHub Models
 ```bash
 export GITHUB_TOKEN="your_github_token"
-docx-validator validate document.docx -b github -s specs.json
+doc_validator validate document.docx -b github -s specs.json
 ```
 
 ### NebulaOne
 ```bash
 export NEBULAONE_API_KEY="your_nebulaone_api_key"
 export NEBULAONE_BASE_URL="https://api.nebulaone.example"
-docx-validator validate document.docx -b nebulaone -m nebula-1 -s specs.json
+doc_validator validate document.docx -b nebulaone -m nebula-1 -s specs.json
 ```
 
 ## Creating Custom Backends
@@ -84,7 +84,7 @@ docx-validator validate document.docx -b nebulaone -m nebula-1 -s specs.json
 You can create custom backends by extending the `BaseBackend` class:
 
 ```python
-from docx_validator.backends import BaseBackend
+from docx_tex_validator.backends import BaseBackend
 from pydantic_ai import Agent
 
 class MyCustomBackend(BaseBackend):
@@ -108,7 +108,7 @@ class MyCustomBackend(BaseBackend):
 Then use it:
 
 ```python
-from docx_validator import DocxValidator
+from docx_tex_validator import DocxValidator
 
 validator = DocxValidator(backend=MyCustomBackend())
 ```

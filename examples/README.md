@@ -1,6 +1,6 @@
 # Example Specification Files and Sample Documents
 
-This directory contains example specification files and sample documents in various formats that can be used with docx-validator.
+This directory contains example specification files and sample documents in various formats that can be used with docx-tex-validator.
 
 ## Sample Documents
 
@@ -23,13 +23,13 @@ A simple specification file designed to work across multiple document formats (D
 **Usage with different formats:**
 ```bash
 # Validate HTML document
-docx-validator validate sample_document.html --spec-file examples/multi_format_specs.json
+doc_validator validate sample_document.html --spec-file examples/multi_format_specs.json
 
 # Validate LaTeX document
-docx-validator validate sample_document.tex --spec-file examples/multi_format_specs.json
+doc_validator validate sample_document.tex --spec-file examples/multi_format_specs.json
 
 # Validate DOCX document
-docx-validator validate document.docx --spec-file examples/multi_format_specs.json
+doc_validator validate document.docx --spec-file examples/multi_format_specs.json
 ```
 
 ### 2. `sample_specifications.json`
@@ -40,7 +40,7 @@ A basic set of validation specifications covering:
 
 **Usage:**
 ```bash
-docx-validator validate document.docx --spec-file examples/sample_specifications.json
+doc_validator validate document.docx --spec-file examples/sample_specifications.json
 ```
 
 ### 2. `structured_document_specifications.json`
@@ -71,12 +71,12 @@ A comprehensive specification file for validating well-structured academic or te
 
 **Usage:**
 ```bash
-docx-validator validate document.docx --spec-file examples/structured_document_specifications.json
+doc_validator validate document.docx --spec-file examples/structured_document_specifications.json
 ```
 
 ## Multiple Document Format Support
 
-docx-validator supports validating documents in multiple formats:
+docx-tex-validator supports validating documents in multiple formats:
 - **DOCX** - Microsoft Word documents (`.docx`)
 - **HTML** - Web pages (`.html`, `.htm`)
 - **LaTeX** - LaTeX documents (`.tex`, `.latex`)
@@ -109,7 +109,7 @@ You can create your own specification files by following the JSON format:
 Use the CLI to generate a basic specification file:
 
 ```bash
-docx-validator init-spec my_specifications.json
+doc_validator init-spec my_specifications.json
 ```
 
 This will create a file with basic validation requirements that you can customize.
