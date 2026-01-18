@@ -12,6 +12,16 @@ The docx-tex-validator now supports multiple document formats beyond just Micros
 
 The validator uses a pluggable parser architecture that automatically detects the document format based on the file extension. Each parser extracts relevant structure and metadata from the document, which is then validated against your specifications using the LLM.
 
+### Parser Implementation
+
+The parsers leverage specialized libraries for accurate document parsing:
+
+- **HTML Parser**: Uses [BeautifulSoup4](https://www.crummy.com/software/BeautifulSoup/) to parse HTML documents, providing robust handling of malformed HTML and easy extraction of document elements.
+- **LaTeX Parser**: Uses [TexSoup](https://github.com/alvinwan/TexSoup) to parse LaTeX documents, understanding LaTeX syntax and structure including commands, environments, and nested elements.
+- **DOCX Parser**: Uses [python-docx](https://python-docx.readthedocs.io/) to parse Microsoft Word documents, accessing the underlying XML structure.
+
+These libraries replace the need for complex regular expression patterns, making the parsers more maintainable and accurate.
+
 ## Usage
 
 ### Auto-Detection

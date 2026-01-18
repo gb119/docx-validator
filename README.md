@@ -37,6 +37,19 @@ pip install -e .
 conda install -c phygbu docx-tex-validator
 ```
 
+### Dependencies
+
+docx-tex-validator requires the following key dependencies:
+
+- **BeautifulSoup4** (>=4.9.0): For parsing and extracting content from HTML documents
+- **TexSoup** (>=0.3.0): For parsing and extracting structure from LaTeX documents
+- **python-docx** (>=1.0.0): For parsing Microsoft Word DOCX files
+- **pydantic-ai** (>=0.0.1): For LLM integration and validation
+- **pydantic** (>=2.0.0): For data validation and settings management
+- **click** (>=8.0.0): For the command-line interface
+
+These dependencies are automatically installed when you install docx-tex-validator.
+
 ## Quick Start
 
 ### Command-Line Usage

@@ -59,7 +59,7 @@ class LaTeXParser(BaseParser):
             raise ValueError(f"Failed to parse LaTeX file: {e}") from e
 
     def _parse_latex(self, file_path: str, content: str) -> Dict[str, Any]:
-        """Parse LaTeX content and extract structure.
+        """Parse LaTeX content and extract structure using TexSoup.
 
         Args:
             file_path (str):
@@ -71,91 +71,105 @@ class LaTeXParser(BaseParser):
             (Dict[str, Any]):
                 Dictionary containing parsed LaTeX structure.
         """
-        import re
+        from TexSoup import TexSoup
+
+        # Parse LaTeX with TexSoup
+        soup = TexSoup(content, tolerance=1)
 
         # Extract document class
-        doc_class_match = re.search(r"\\documentclass(?:\[.*?\])?\{(.*?)\}", content)
-        doc_class = doc_class_match.group(1) if doc_class_match else None
+        doc_class = None
+        doc_class_cmd = soup.find("documentclass")
+        if doc_class_cmd and doc_class_cmd.args:
+            doc_class = str(doc_class_cmd.args[0]).strip("{}")
 
         # Extract metadata from common LaTeX commands
         metadata = {}
 
-        title_match = re.search(r"\\title\{(.*?)\}", content, re.DOTALL)
-        if title_match:
-            metadata["title"] = self._clean_latex(title_match.group(1))
+        title_cmd = soup.find("title")
+        if title_cmd and title_cmd.args:
+            metadata["title"] = self._clean_latex(str(title_cmd.args[0]))
 
-        author_match = re.search(r"\\author\{(.*?)\}", content, re.DOTALL)
-        if author_match:
-            metadata["author"] = self._clean_latex(author_match.group(1))
+        author_cmd = soup.find("author")
+        if author_cmd and author_cmd.args:
+            metadata["author"] = self._clean_latex(str(author_cmd.args[0]))
 
-        date_match = re.search(r"\\date\{(.*?)\}", content, re.DOTALL)
-        if date_match:
-            metadata["date"] = self._clean_latex(date_match.group(1))
+        date_cmd = soup.find("date")
+        if date_cmd and date_cmd.args:
+            metadata["date"] = self._clean_latex(str(date_cmd.args[0]))
 
         # Extract sections and subsections
         sections = []
-        section_patterns = [
-            (r"\\section\{(.*?)\}", "section", 1),
-            (r"\\subsection\{(.*?)\}", "subsection", 2),
-            (r"\\subsubsection\{(.*?)\}", "subsubsection", 3),
-            (r"\\chapter\{(.*?)\}", "chapter", 0),
+        section_types = [
+            ("chapter", 0),
+            ("section", 1),
+            ("subsection", 2),
+            ("subsubsection", 3),
         ]
 
-        for pattern, section_type, level in section_patterns:
-            for match in re.finditer(pattern, content, re.DOTALL):
-                sections.append(
-                    {
-                        "type": section_type,
-                        "level": level,
-                        "text": self._clean_latex(match.group(1)),
-                    }
-                )
+        for section_type, level in section_types:
+            for section_cmd in soup.find_all(section_type):
+                if section_cmd.args:
+                    sections.append(
+                        {
+                            "type": section_type,
+                            "level": level,
+                            "text": self._clean_latex(str(section_cmd.args[0])),
+                        }
+                    )
 
         # Extract environments (figures, tables, equations)
         figures = []
-        figure_pattern = r"\\begin\{figure\}(.*?)\\end\{figure\}"
-        for match in re.finditer(figure_pattern, content, re.DOTALL):
-            fig_content = match.group(1)
-            caption_match = re.search(r"\\caption\{(.*?)\}", fig_content, re.DOTALL)
-            caption = self._clean_latex(caption_match.group(1)) if caption_match else ""
-            label_match = re.search(r"\\label\{(.*?)\}", fig_content)
-            label = label_match.group(1) if label_match else ""
+        for figure in soup.find_all("figure"):
+            caption_cmd = figure.find("caption")
+            caption = self._clean_latex(str(caption_cmd.args[0])) if caption_cmd and caption_cmd.args else ""
+            
+            label_cmd = figure.find("label")
+            label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
+            
             figures.append({"caption": caption, "label": label})
 
         tables = []
-        table_pattern = r"\\begin\{table\}(.*?)\\end\{table\}"
-        for match in re.finditer(table_pattern, content, re.DOTALL):
-            tbl_content = match.group(1)
-            caption_match = re.search(r"\\caption\{(.*?)\}", tbl_content, re.DOTALL)
-            caption = self._clean_latex(caption_match.group(1)) if caption_match else ""
-            label_match = re.search(r"\\label\{(.*?)\}", tbl_content)
-            label = label_match.group(1) if label_match else ""
+        for table in soup.find_all("table"):
+            caption_cmd = table.find("caption")
+            caption = self._clean_latex(str(caption_cmd.args[0])) if caption_cmd and caption_cmd.args else ""
+            
+            label_cmd = table.find("label")
+            label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
+            
             tables.append({"caption": caption, "label": label})
 
         # Extract equations
         equations = []
-        equation_pattern = r"\\begin\{equation\}(.*?)\\end\{equation\}"
-        for match in re.finditer(equation_pattern, content, re.DOTALL):
-            eq_content = match.group(1)
-            label_match = re.search(r"\\label\{(.*?)\}", eq_content)
-            label = label_match.group(1) if label_match else ""
-            equations.append({"content": eq_content.strip(), "label": label})
+        for equation in soup.find_all("equation"):
+            label_cmd = equation.find("label")
+            label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
+            
+            # Get equation content (text without the label command)
+            eq_str = str(equation)
+            # Remove begin/end tags and label command
+            import re
+            eq_content = re.sub(r"\\begin\{equation\}", "", eq_str)
+            eq_content = re.sub(r"\\end\{equation\}", "", eq_content)
+            eq_content = re.sub(r"\\label\{.*?\}", "", eq_content)
+            eq_content = eq_content.strip()
+            
+            equations.append({"content": eq_content, "label": label})
 
         # Extract bibliography information
         has_bibliography = bool(
-            re.search(r"\\bibliography\{.*?\}", content)
-            or re.search(r"\\begin\{thebibliography\}", content)
+            soup.find("bibliography") or soup.find("thebibliography")
         )
 
         # Extract citations
-        citations = re.findall(r"\\cite\{(.*?)\}", content)
+        citations = soup.find_all("cite")
         citation_count = len(citations)
 
         # Extract packages
         packages = []
-        package_pattern = r"\\usepackage(?:\[.*?\])?\{(.*?)\}"
-        for match in re.finditer(package_pattern, content):
-            packages.extend(match.group(1).split(","))
+        for usepackage_cmd in soup.find_all("usepackage"):
+            if usepackage_cmd.args:
+                pkg_names = str(usepackage_cmd.args[0]).strip("{}")
+                packages.extend([pkg.strip() for pkg in pkg_names.split(",")])
 
         return {
             "file_path": str(file_path),
@@ -166,7 +180,7 @@ class LaTeXParser(BaseParser):
             "figures": figures,
             "tables": tables,
             "equations": equations,
-            "packages": [pkg.strip() for pkg in packages],
+            "packages": packages,
             "has_bibliography": has_bibliography,
             "citation_count": citation_count,
             "raw_content": content,
