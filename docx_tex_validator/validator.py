@@ -193,7 +193,7 @@ class DocxValidator:
 
         # Set up the document context once for all validations
         message_history = self._setup_document_context(doc_structure)
-        
+
         # Check if context setup succeeded
         use_context_method = bool(message_history)
         if use_context_method:
@@ -307,7 +307,7 @@ with: "Document structure received and ready for validation."
                 "Falling back to legacy validation method for this spec."
             )
             return self._validate_spec(doc_structure, spec), message_history
-        
+
         # Prepare the validation prompt (without repeating the document)
         prompt = f"""
 Now validate this requirement:

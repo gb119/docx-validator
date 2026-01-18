@@ -371,7 +371,7 @@ def test_validate_spec_with_context():
 
         # Mock message history
         message_history = [{"role": "user", "content": "Document structure..."}]
-        
+
         # Mock document structure
         doc_structure = {"metadata": {"title": "Test"}, "paragraphs": ["Content"]}
 
@@ -489,32 +489,32 @@ def test_context_based_validation_efficiency():
 )
 def test_github_models_integration():
     """Test document validation against GitHub models using test data files.
-    
+
     This test validates three sample documents against specifications using
     GitHub's AI model service. It requires GITHUB_TOKEN to be set.
     """
     # Get the test data directory
     test_data_dir = Path(__file__).parent / "data"
-    
+
     # Load specifications from JSON file
     spec_file = test_data_dir / "specification.json"
     with open(spec_file, "r") as f:
         spec_data = json.load(f)
-    
+
     # Convert JSON specs to ValidationSpec objects
     specs = [ValidationSpec(**spec) for spec in spec_data]
-    
+
     # Get the three docx files
     docx_files = [
         test_data_dir / "Fully_correct.docx",
         test_data_dir / "Partially Correct.docx",
         test_data_dir / "Mostly Incorrect.docx",
     ]
-    
+
     # Verify all files exist
     for docx_file in docx_files:
         assert docx_file.exists(), f"Test file not found: {docx_file}"
-    
+
     # Create validator with GitHub backend
     github_token = os.environ["GITHUB_TOKEN"]
     validator = DocxValidator(
@@ -522,27 +522,27 @@ def test_github_models_integration():
         model_name="gpt-4o-mini",
         api_key=github_token,
     )
-    
+
     # Validate each document
     reports = {}
     for docx_file in docx_files:
         report = validator.validate(str(docx_file), specs)
         reports[docx_file.name] = report
-        
+
         # Basic assertions
         assert report.total_specs == len(specs)
         assert report.passed_count + report.failed_count == report.total_specs
         assert 0.0 <= report.score <= 1.0
         assert len(report.results) == len(specs)
-    
+
     # Create JSON artifact with detailed results organized by file
     output_data = {}
-    
+
     # Organize results by file, with each file showing all test results
     for docx_file in docx_files:
         doc_name = docx_file.name
         report = reports[doc_name]
-        
+
         # Build test results for this document
         test_results = []
         for result in report.results:
@@ -552,7 +552,7 @@ def test_github_models_integration():
                 "confidence": result.confidence,
                 "reasoning": result.reasoning
             })
-        
+
         output_data[doc_name] = {
             "total_score": report.score,
             "passed_count": report.passed_count,
@@ -560,19 +560,19 @@ def test_github_models_integration():
             "total_specs": report.total_specs,
             "tests": test_results
         }
-    
+
     # Write JSON artifact
     output_file = Path(__file__).parent / GITHUB_MODELS_TEST_RESULTS_FILE
     with open(output_file, "w") as f:
         json.dump(output_data, f, indent=2)
-    
+
     print(f"\n=== Test results written to {output_file} ===")
-    
+
     # Verify that "Fully_correct.docx" has the highest score
     fully_correct_score = reports["Fully_correct.docx"].score
     partially_correct_score = reports["Partially Correct.docx"].score
     mostly_incorrect_score = reports["Mostly Incorrect.docx"].score
-    
+
     # The fully correct document should have a higher score than the others
     assert fully_correct_score >= partially_correct_score, (
         f"Fully correct score ({fully_correct_score}) should be >= "
@@ -582,7 +582,7 @@ def test_github_models_integration():
         f"Fully correct score ({fully_correct_score}) should be >= "
         f"mostly incorrect score ({mostly_incorrect_score})"
     )
-    
+
     # Sanity check: Ensure validation is actually happening
     # All three documents should not have identical results
     all_scores = [fully_correct_score, partially_correct_score, mostly_incorrect_score]
@@ -592,7 +592,7 @@ def test_github_models_integration():
         f"Partially correct={partially_correct_score}, "
         f"Mostly incorrect={mostly_incorrect_score}"
     )
-    
+
     # Additional sanity check: Ensure results contain actual reasoning
     for doc_name, report in reports.items():
         for result in report.results:
@@ -605,7 +605,7 @@ def test_github_models_integration():
                 f"Result for '{result.spec_name}' in '{doc_name}' has very short reasoning: "
                 f"'{result.reasoning}'. Validation may not be working properly."
             )
-    
+
     # Print summary for debugging
     print("\n=== Validation Results ===")
     for doc_name, report in reports.items():
