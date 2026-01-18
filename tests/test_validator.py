@@ -2,10 +2,17 @@
 Basic tests for the docx-tex-validator package.
 """
 
+import json
+import os
+from pathlib import Path
+
 import pytest
 
 from docx_tex_validator import DocxValidator, ValidationResult, ValidationSpec
 from docx_tex_validator.parser import DocxParser
+
+# Constants
+GITHUB_MODELS_TEST_RESULTS_FILE = "github_models_test_results.json"
 
 
 def test_validation_spec_creation():
@@ -469,6 +476,113 @@ def test_context_based_validation_efficiency():
     finally:
         if "OPENAI_API_KEY" in os.environ:
             del os.environ["OPENAI_API_KEY"]
+
+
+@pytest.mark.skipif(
+    "GITHUB_TOKEN" not in os.environ,
+    reason="GITHUB_TOKEN environment variable not set",
+)
+def test_github_models_integration():
+    """Test document validation against GitHub models using test data files.
+    
+    This test validates three sample documents against specifications using
+    GitHub's AI model service. It requires GITHUB_TOKEN to be set.
+    """
+    # Get the test data directory
+    test_data_dir = Path(__file__).parent / "data"
+    
+    # Load specifications from JSON file
+    spec_file = test_data_dir / "specification.json"
+    with open(spec_file, "r") as f:
+        spec_data = json.load(f)
+    
+    # Convert JSON specs to ValidationSpec objects
+    specs = [ValidationSpec(**spec) for spec in spec_data]
+    
+    # Get the three docx files
+    docx_files = [
+        test_data_dir / "Fully_correct.docx",
+        test_data_dir / "Partially Correct.docx",
+        test_data_dir / "Mostly Incorrect.docx",
+    ]
+    
+    # Verify all files exist
+    for docx_file in docx_files:
+        assert docx_file.exists(), f"Test file not found: {docx_file}"
+    
+    # Create validator with GitHub backend
+    github_token = os.environ["GITHUB_TOKEN"]
+    validator = DocxValidator(
+        backend="github",
+        model_name="gpt-4o-mini",
+        api_key=github_token,
+    )
+    
+    # Validate each document
+    reports = {}
+    for docx_file in docx_files:
+        report = validator.validate(str(docx_file), specs)
+        reports[docx_file.name] = report
+        
+        # Basic assertions
+        assert report.total_specs == len(specs)
+        assert report.passed_count + report.failed_count == report.total_specs
+        assert 0.0 <= report.score <= 1.0
+        assert len(report.results) == len(specs)
+    
+    # Create JSON artifact with detailed results organized by file
+    output_data = {}
+    
+    # Organize results by file, with each file showing all test results
+    for docx_file in docx_files:
+        doc_name = docx_file.name
+        report = reports[doc_name]
+        
+        # Build test results for this document
+        test_results = []
+        for result in report.results:
+            test_results.append({
+                "test_name": result.spec_name,
+                "passed": result.passed,
+                "confidence": result.confidence,
+                "reasoning": result.reasoning
+            })
+        
+        output_data[doc_name] = {
+            "total_score": report.score,
+            "passed_count": report.passed_count,
+            "failed_count": report.failed_count,
+            "total_specs": report.total_specs,
+            "tests": test_results
+        }
+    
+    # Write JSON artifact
+    output_file = Path(__file__).parent / GITHUB_MODELS_TEST_RESULTS_FILE
+    with open(output_file, "w") as f:
+        json.dump(output_data, f, indent=2)
+    
+    print(f"\n=== Test results written to {output_file} ===")
+    
+    # Verify that "Fully_correct.docx" has the highest score
+    fully_correct_score = reports["Fully_correct.docx"].score
+    partially_correct_score = reports["Partially Correct.docx"].score
+    mostly_incorrect_score = reports["Mostly Incorrect.docx"].score
+    
+    # The fully correct document should have a higher score than the others
+    assert fully_correct_score >= partially_correct_score, (
+        f"Fully correct score ({fully_correct_score}) should be >= "
+        f"partially correct score ({partially_correct_score})"
+    )
+    assert fully_correct_score >= mostly_incorrect_score, (
+        f"Fully correct score ({fully_correct_score}) should be >= "
+        f"mostly incorrect score ({mostly_incorrect_score})"
+    )
+    
+    # Print summary for debugging
+    print("\n=== Validation Results ===")
+    for doc_name, report in reports.items():
+        print(f"{doc_name}: {report.score:.2%} "
+              f"({report.passed_count}/{report.total_specs} passed)")
 
 
 if __name__ == "__main__":
