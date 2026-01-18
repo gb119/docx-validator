@@ -27,3 +27,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pytest tests/test_validator.py::test_github_models_integration -v
+
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: github-models-test-results
+          path: tests/github_models_test_results.json
+          if-no-files-found: warn

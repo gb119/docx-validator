@@ -51,6 +51,9 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# Test artifacts
+tests/github_models_test_results.json
+
 # Translations
 *.mo
 *.pot

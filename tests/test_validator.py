@@ -527,6 +527,40 @@ def test_github_models_integration():
         assert 0.0 <= report.score <= 1.0
         assert len(report.results) == len(specs)
     
+    # Create JSON artifact with detailed results
+    # Structure: for each test spec, show results across all files
+    output_data = {}
+    
+    # First, organize by file
+    for docx_file in docx_files:
+        doc_name = docx_file.name
+        report = reports[doc_name]
+        
+        # Build test results for this document
+        test_results = []
+        for result in report.results:
+            test_results.append({
+                "test_name": result.spec_name,
+                "passed": result.passed,
+                "confidence": result.confidence,
+                "reasoning": result.reasoning
+            })
+        
+        output_data[doc_name] = {
+            "total_score": report.score,
+            "passed_count": report.passed_count,
+            "failed_count": report.failed_count,
+            "total_specs": report.total_specs,
+            "tests": test_results
+        }
+    
+    # Write JSON artifact
+    output_file = Path(__file__).parent / "github_models_test_results.json"
+    with open(output_file, "w") as f:
+        json.dump(output_data, f, indent=2)
+    
+    print(f"\n=== Test results written to {output_file} ===")
+    
     # Verify that "Fully_correct.docx" has the highest score
     fully_correct_score = reports["Fully_correct.docx"].score
     partially_correct_score = reports["Partially Correct.docx"].score
