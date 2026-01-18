@@ -9,11 +9,8 @@ import sys
 # Add the project root directory to the Python path
 sys.path.insert(0, os.path.abspath(".."))
 
-# Read version directly from __init__.py to avoid importing dependencies
-import re
-with open(os.path.join(os.path.abspath(".."), "docx_tex_validator", "__init__.py")) as f:
-    version_match = re.search(r"^__version__\s*=\s*['\"]([^'\"]*)['\"]", f.read(), re.MULTILINE)
-    __version__ = version_match.group(1) if version_match else "0.0.0"
+# Import version from the package
+from docx_tex_validator import __version__
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
