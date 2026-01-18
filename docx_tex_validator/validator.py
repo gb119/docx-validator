@@ -4,9 +4,11 @@ Core validation module using pydantic-ai with pluggable AI backends.
 
 import json
 import logging
+import traceback
 from typing import Any, Dict, List, Optional, Tuple
 
 from pydantic import BaseModel, Field
+from pydantic_ai.exceptions import ModelHTTPError
 
 from .backends import get_backend
 from .parser import DocxParser
@@ -256,6 +258,8 @@ class DocxValidator:
                 Message history list that can be passed to subsequent validation calls.
         """
         # Prepare the context setup prompt
+        # Note: We ask for a simple confirmation to ensure the LLM processes
+        # the document structure. The agent expects a string response by default.
         context_prompt = f"""
 I will provide you with a document structure to analyze. After I provide the document, \
 I will ask you a series of validation questions about it. Please analyze and remember \
@@ -269,10 +273,22 @@ with: "Document structure received and ready for validation."
 """
 
         try:
-            # Log the prompt at debug level
+            # Log diagnostic information before making the request
             logger.debug("=" * 80)
             logger.debug("LLM REQUEST - Document Context Setup")
             logger.debug("=" * 80)
+            logger.debug("Backend: %s", self.backend.name)
+            logger.debug("Model: %s", self.backend.model_name)
+            # Try to get output_type but don't fail if it's not accessible
+            # Note: _output_type is a private attribute and may change in future pydantic-ai versions
+            try:
+                output_type = getattr(self.agent, '_output_type', None)
+                if output_type is not None:
+                    logger.debug("Agent output_type: %s", output_type)
+            except (AttributeError, TypeError):
+                # Silently ignore if we can't access the output_type
+                pass
+            logger.debug("Prompt length: %d characters", len(context_prompt))
             logger.debug("Prompt:\n%s", context_prompt)
             logger.debug("-" * 80)
             
@@ -291,14 +307,39 @@ with: "Document structure received and ready for validation."
             # Return the message history from this interaction
             return response.all_messages()
         except Exception as e:
-            # If context setup fails, log the error and return empty history
+            # If context setup fails, log comprehensive error information
             # This will trigger fallback to the legacy validation method
-            # Note: We log the exception type but not the full message to avoid
-            # potentially exposing sensitive information in logs
+            
+            # Log the exception type and basic message
+            # Note: We log the full message to help diagnose the issue
+            # If running in production, consider setting log level to WARNING to reduce verbosity
+            logger.error(
+                f"Context setup failed with {type(e).__name__}: {str(e)}"
+            )
+            
+            # For ModelHTTPError, log additional HTTP-specific details
+            if isinstance(e, ModelHTTPError):
+                model_name = getattr(e, 'model_name', 'unknown')
+                logger.error(
+                    f"HTTP Error Details - Status Code: {e.status_code}, Model: {model_name}"
+                )
+                body = getattr(e, 'body', None)
+                if body is not None:
+                    # Convert body to string and truncate if too long to avoid logging sensitive data
+                    body_str = str(body)
+                    max_body_length = 500
+                    if len(body_str) > max_body_length:
+                        body_str = body_str[:max_body_length] + "... (truncated)"
+                    logger.error(f"Response Body (first {max_body_length} chars): {body_str}")
+            
+            # Log the full traceback for debugging (only at DEBUG level to avoid log spam)
+            logger.debug("Full traceback:", exc_info=True)
+            
+            # Provide user-friendly guidance
             logger.warning(
-                f"Context setup failed with {type(e).__name__}. "
                 "Falling back to legacy validation method (includes document in each request)."
             )
+            
             return []
 
     def _validate_spec_with_context(
