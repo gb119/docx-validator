@@ -2,6 +2,10 @@
 Basic tests for the docx-tex-validator package.
 """
 
+import json
+import os
+from pathlib import Path
+
 import pytest
 
 from docx_tex_validator import DocxValidator, ValidationResult, ValidationSpec
@@ -472,7 +476,7 @@ def test_context_based_validation_efficiency():
 
 
 @pytest.mark.skipif(
-    "GITHUB_TOKEN" not in __import__("os").environ,
+    "GITHUB_TOKEN" not in os.environ,
     reason="GITHUB_TOKEN environment variable not set",
 )
 def test_github_models_integration():
@@ -481,10 +485,6 @@ def test_github_models_integration():
     This test validates three sample documents against specifications using
     GitHub's AI model service. It requires GITHUB_TOKEN to be set.
     """
-    import json
-    import os
-    from pathlib import Path
-    
     # Get the test data directory
     test_data_dir = Path(__file__).parent / "data"
     
