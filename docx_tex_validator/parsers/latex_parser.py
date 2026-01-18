@@ -2,6 +2,7 @@
 Parser for LaTeX files.
 """
 
+import re
 from typing import Any, Dict
 
 from .base import BaseParser
@@ -156,14 +157,15 @@ class LaTeXParser(BaseParser):
             label_cmd = equation.find("label")
             label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
 
-            # Get equation content (text without the label command)
-            eq_str = str(equation)
-            # Remove begin/end tags and label command
-            import re
-            eq_content = re.sub(r"\\begin\{equation\}", "", eq_str)
-            eq_content = re.sub(r"\\end\{equation\}", "", eq_content)
-            eq_content = re.sub(r"\\label\{.*?\}", "", eq_content)
-            eq_content = eq_content.strip()
+            # Get equation content by extracting text from children, excluding label
+            eq_parts = []
+            for child in equation.contents:
+                child_str = str(child).strip()
+                # Skip label commands
+                if not child_str.startswith("\\label"):
+                    eq_parts.append(child_str)
+
+            eq_content = " ".join(eq_parts).strip()
 
             equations.append({"content": eq_content, "label": label})
 
@@ -209,8 +211,6 @@ class LaTeXParser(BaseParser):
             (str):
                 Cleaned text with LaTeX commands removed.
         """
-        import re
-
         # Remove common LaTeX commands but keep the text
         text = re.sub(r"\\textbf\{(.*?)\}", r"\1", text)
         text = re.sub(r"\\textit\{(.*?)\}", r"\1", text)
