@@ -130,7 +130,7 @@ class DocxValidator:
     def __init__(
         self,
         backend: str = "openai",
-        model_name: str = "gpt-5-turbo",
+        model_name: str = "gpt-4o",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         parser: Optional[str] = None,

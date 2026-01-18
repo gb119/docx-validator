@@ -47,7 +47,7 @@ class OpenAIBackend(BaseBackend):
 
     def __init__(
         self,
-        model_name: str = "gpt-5-turbo",
+        model_name: str = "gpt-4o",
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         **kwargs,
