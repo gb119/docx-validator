@@ -157,13 +157,13 @@ class LaTeXParser(BaseParser):
             label_cmd = equation.find("label")
             label = str(label_cmd.args[0]).strip("{}") if label_cmd and label_cmd.args else ""
 
-            # Get equation content by extracting text from children, excluding label
+            # Get equation content by filtering out label commands using TexSoup API
             eq_parts = []
             for child in equation.contents:
-                child_str = str(child).strip()
-                # Skip label commands
-                if not child_str.startswith("\\label"):
-                    eq_parts.append(child_str)
+                # Check if child is a TexNode with name 'label'
+                if hasattr(child, 'name') and child.name == 'label':
+                    continue  # Skip label commands
+                eq_parts.append(str(child).strip())
 
             eq_content = " ".join(eq_parts).strip()
 
